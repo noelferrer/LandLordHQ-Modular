@@ -1516,8 +1516,8 @@ body {
 
 .footer-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
-  gap: 48px;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  gap: 40px;
   margin-bottom: 56px;
 }
 
@@ -1795,6 +1795,8 @@ body {
   .finance-amount { font-size: 34px; }
   /* Ensure finance section content comes before dashboard on mobile */
   .finance-inner { display: flex; flex-direction: column; }
+  /* Guides grid: 3-col → 1-col */
+  #guides .container > div:nth-child(2) { grid-template-columns: 1fr !important; }
 }
 
 /* ── Small Mobile (≤480px) ──────────── */
@@ -1869,6 +1871,7 @@ body {
       <ul class="nav-links">
         <li><a href="#features">Features</a></li>
         <li><a href="#how-it-works">How It Works</a></li>
+        <li><a href="#guides">Guides</a></li>
         <li><a href="#telegram">Telegram Bot</a></li>
         <li><a href="#testimonials">Reviews</a></li>
       </ul>
@@ -1889,6 +1892,7 @@ body {
 <div class="mobile-menu" id="mobileMenu">
   <a href="#features"      onclick="closeMobileMenu()">Features</a>
   <a href="#how-it-works"  onclick="closeMobileMenu()">How It Works</a>
+  <a href="#guides"        onclick="closeMobileMenu()">Guides</a>
   <a href="#telegram"      onclick="closeMobileMenu()">Telegram Bot</a>
   <a href="#testimonials"  onclick="closeMobileMenu()">Reviews</a>
   <a href="login.html">Sign In</a>
@@ -2221,6 +2225,9 @@ body {
         </div>
         <div class="step-title">Create Your Account</div>
         <div class="step-desc">Sign up, add your properties and units. Link your Telegram account with a single verification code — no password ever needed. OTP login keeps it simple and secure.</div>
+        <a href="client-onboard.html" style="display:inline-flex;align-items:center;gap:6px;margin-top:16px;font-size:13px;font-weight:600;color:var(--electric-light);text-decoration:none;opacity:0.85;transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'">
+          Landlord setup guide <i class="fas fa-arrow-right" style="font-size:11px;"></i>
+        </a>
       </div>
 
       <div class="step reveal" style="transition-delay:0.2s">
@@ -2230,6 +2237,9 @@ body {
         </div>
         <div class="step-title">Onboard Your Tenants</div>
         <div class="step-desc">Each tenant gets a unique 6-character link code. They message your Telegram bot <code style="font-family:var(--font-mono);color:var(--electric-light)">/link ABC123</code> and they're instantly connected to their unit profile.</div>
+        <a href="tenant-onboard.html" style="display:inline-flex;align-items:center;gap:6px;margin-top:16px;font-size:13px;font-weight:600;color:var(--electric-light);text-decoration:none;opacity:0.85;transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'">
+          Tenant setup guide <i class="fas fa-arrow-right" style="font-size:11px;"></i>
+        </a>
       </div>
 
       <div class="step reveal" style="transition-delay:0.3s">
@@ -2239,8 +2249,104 @@ body {
         </div>
         <div class="step-title">Watch It Run Itself</div>
         <div class="step-desc">Reminders fire automatically. Tenants submit receipts and maintenance tickets via bot. You review, verify, and manage everything from your dashboard — on your schedule.</div>
+        <a href="client-onboard.html#commands" style="display:inline-flex;align-items:center;gap:6px;margin-top:16px;font-size:13px;font-weight:600;color:var(--electric-light);text-decoration:none;opacity:0.85;transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'">
+          View all bot commands <i class="fas fa-arrow-right" style="font-size:11px;"></i>
+        </a>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     GUIDES SECTION
+══════════════════════════════════════ -->
+<section id="guides" style="background:var(--white); padding:96px 0; border-top:1px solid var(--light-border);">
+  <div class="container">
+
+    <div class="reveal" style="text-align:center; margin-bottom:56px;">
+      <div class="label-tag" style="display:block; margin-bottom:12px;">Step-by-Step Guides</div>
+      <h2 class="section-title" style="margin:0 auto 16px;">Not Sure Where to Start?</h2>
+      <p class="section-desc" style="margin:0 auto; text-align:center;">Pick your role and follow the guide — from first login to fully automated.</p>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:24px;">
+
+      <!-- Super Admin -->
+      <a href="super-onboard.html" class="reveal" style="text-decoration:none; background:var(--navy); border-radius:20px; padding:32px; display:flex; flex-direction:column; gap:20px; transition:transform 0.2s, box-shadow 0.2s; box-shadow:var(--shadow);" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='var(--shadow-lg)'" onmouseout="this.style.transform='';this.style.boxShadow='var(--shadow)'">
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+          <div style="width:48px; height:48px; background:rgba(245,166,35,0.15); border-radius:13px; display:flex; align-items:center; justify-content:center; font-size:20px; color:var(--gold);">
+            <i class="fas fa-shield-alt"></i>
+          </div>
+          <span style="font-family:var(--font-mono); font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--gold); background:rgba(245,166,35,0.12); border:1px solid rgba(245,166,35,0.25); border-radius:6px; padding:4px 10px;">Super Admin</span>
+        </div>
+        <div>
+          <div style="font-family:var(--font-display); font-size:1.15rem; font-weight:700; color:var(--white); margin-bottom:8px;">Platform Setup Guide</div>
+          <div style="font-size:0.88rem; color:var(--slate-light); line-height:1.6;">Generate invite codes, onboard new landlords, and manage the full LandlordHQ platform from your Super Admin hub.</div>
+        </div>
+        <ul style="list-style:none; display:flex; flex-direction:column; gap:8px; margin-top:auto;">
+          <li style="display:flex; align-items:center; gap:8px; font-size:0.83rem; color:rgba(255,255,255,0.55);"><i class="fas fa-check" style="color:var(--gold); font-size:10px;"></i> Create & manage landlord accounts</li>
+          <li style="display:flex; align-items:center; gap:8px; font-size:0.83rem; color:rgba(255,255,255,0.55);"><i class="fas fa-check" style="color:var(--gold); font-size:10px;"></i> Generate invite links</li>
+          <li style="display:flex; align-items:center; gap:8px; font-size:0.83rem; color:rgba(255,255,255,0.55);"><i class="fas fa-check" style="color:var(--gold); font-size:10px;"></i> Full command reference</li>
+        </ul>
+        <div style="display:flex; align-items:center; gap:6px; font-size:13px; font-weight:600; color:var(--gold); margin-top:4px;">
+          View Super Admin Guide <i class="fas fa-arrow-right" style="font-size:11px;"></i>
+        </div>
+      </a>
+
+      <!-- Landlord -->
+      <a href="client-onboard.html" class="reveal" style="text-decoration:none; background:var(--electric); border-radius:20px; padding:32px; display:flex; flex-direction:column; gap:20px; transition:transform 0.2s, box-shadow 0.2s; box-shadow:0 4px 24px rgba(43,122,255,0.35);" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 16px 48px rgba(43,122,255,0.45)'" onmouseout="this.style.transform='';this.style.boxShadow='0 4px 24px rgba(43,122,255,0.35)'">
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+          <div style="width:48px; height:48px; background:rgba(255,255,255,0.15); border-radius:13px; display:flex; align-items:center; justify-content:center; font-size:20px; color:var(--white);">
+            <i class="fas fa-building"></i>
+          </div>
+          <span style="font-family:var(--font-mono); font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--white); background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.25); border-radius:6px; padding:4px 10px;">Landlord</span>
+        </div>
+        <div>
+          <div style="font-family:var(--font-display); font-size:1.15rem; font-weight:700; color:var(--white); margin-bottom:8px;">Landlord Onboarding Guide</div>
+          <div style="font-size:0.88rem; color:rgba(255,255,255,0.75); line-height:1.6;">Activate your account, add properties, connect Telegram, and get your first tenant linked — step by step.</div>
+        </div>
+        <ul style="list-style:none; display:flex; flex-direction:column; gap:8px; margin-top:auto;">
+          <li style="display:flex; align-items:center; gap:8px; font-size:0.83rem; color:rgba(255,255,255,0.75);"><i class="fas fa-check" style="color:rgba(255,255,255,0.9); font-size:10px;"></i> Sign up & claim Telegram account</li>
+          <li style="display:flex; align-items:center; gap:8px; font-size:0.83rem; color:rgba(255,255,255,0.75);"><i class="fas fa-check" style="color:rgba(255,255,255,0.9); font-size:10px;"></i> Add properties & onboard tenants</li>
+          <li style="display:flex; align-items:center; gap:8px; font-size:0.83rem; color:rgba(255,255,255,0.75);"><i class="fas fa-check" style="color:rgba(255,255,255,0.9); font-size:10px;"></i> All landlord bot commands</li>
+        </ul>
+        <div style="display:flex; align-items:center; gap:6px; font-size:13px; font-weight:600; color:var(--white); margin-top:4px;">
+          View Landlord Guide <i class="fas fa-arrow-right" style="font-size:11px;"></i>
+        </div>
+      </a>
+
+      <!-- Tenant -->
+      <a href="tenant-onboard.html" class="reveal" style="text-decoration:none; background:var(--off-white); border:1px solid var(--light-border); border-radius:20px; padding:32px; display:flex; flex-direction:column; gap:20px; transition:transform 0.2s, box-shadow 0.2s; box-shadow:var(--shadow-sm);" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='var(--shadow)'" onmouseout="this.style.transform='';this.style.boxShadow='var(--shadow-sm)'">
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+          <div style="width:48px; height:48px; background:rgba(34,158,217,0.1); border-radius:13px; display:flex; align-items:center; justify-content:center; font-size:20px; color:#229ED9;">
+            <i class="fab fa-telegram-plane"></i>
+          </div>
+          <span style="font-family:var(--font-mono); font-size:10px; letter-spacing:2px; text-transform:uppercase; color:#229ED9; background:rgba(34,158,217,0.1); border:1px solid rgba(34,158,217,0.2); border-radius:6px; padding:4px 10px;">Tenant</span>
+        </div>
+        <div>
+          <div style="font-family:var(--font-display); font-size:1.15rem; font-weight:700; color:var(--navy); margin-bottom:8px;">Tenant Onboarding Guide</div>
+          <div style="font-size:0.88rem; color:var(--slate); line-height:1.6;">Got a link code from your landlord? Follow this guide to connect your Telegram and start managing your unit.</div>
+        </div>
+        <ul style="list-style:none; display:flex; flex-direction:column; gap:8px; margin-top:auto;">
+          <li style="display:flex; align-items:center; gap:8px; font-size:0.83rem; color:var(--slate);"><i class="fas fa-check" style="color:#229ED9; font-size:10px;"></i> Link your unit to Telegram</li>
+          <li style="display:flex; align-items:center; gap:8px; font-size:0.83rem; color:var(--slate);"><i class="fas fa-check" style="color:#229ED9; font-size:10px;"></i> Submit payments & maintenance</li>
+          <li style="display:flex; align-items:center; gap:8px; font-size:0.83rem; color:var(--slate);"><i class="fas fa-check" style="color:#229ED9; font-size:10px;"></i> All tenant bot commands</li>
+        </ul>
+        <div style="display:flex; align-items:center; gap:6px; font-size:13px; font-weight:600; color:#229ED9; margin-top:4px;">
+          View Tenant Guide <i class="fas fa-arrow-right" style="font-size:11px;"></i>
+        </div>
+      </a>
+
+    </div>
+
+    <!-- Share guide tip -->
+    <div class="reveal" style="margin-top:40px; text-align:center; padding:24px; background:var(--off-white); border:1px solid var(--light-border); border-radius:14px; max-width:560px; margin-left:auto; margin-right:auto;">
+      <i class="fas fa-share-alt" style="color:var(--electric); margin-right:8px;"></i>
+      <span style="font-size:0.9rem; color:var(--slate);">
+        <strong style="color:var(--navy);">Share the guides</strong> — send the Tenant Guide link directly to new tenants so they can self-onboard without needing your help.
+      </span>
+    </div>
+
   </div>
 </section>
 
@@ -2567,6 +2673,7 @@ body {
         <ul class="footer-links">
           <li><a href="#features">Features</a></li>
           <li><a href="#how-it-works">How It Works</a></li>
+          <li><a href="#guides">Guides</a></li>
           <li><a href="#telegram">Telegram Bot</a></li>
           <li><a href="signup.html">Get Started</a></li>
         </ul>
@@ -2578,6 +2685,15 @@ body {
           <li><a href="login.html">Sign In</a></li>
           <li><a href="signup.html">Create Account</a></li>
           <li><a href="dashboard.html">Dashboard</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Guides</h4>
+        <ul class="footer-links">
+          <li><a href="super-onboard.html">Super Admin Guide</a></li>
+          <li><a href="client-onboard.html">Landlord Guide</a></li>
+          <li><a href="tenant-onboard.html">Tenant Guide</a></li>
         </ul>
       </div>
 

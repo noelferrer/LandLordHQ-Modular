@@ -44,10 +44,10 @@ const setupReminders = (bot) => {
             const sendReminderDate = addDays(today, reminderDays);
 
             if (getDate(sendReminderDate) === getDate(nextDueDate) && sendReminderDate.getMonth() === nextDueDate.getMonth()) {
-                const amountText = tenant.leaseAmount ? `\n\nAmount Due: ${parseFloat(tenant.leaseAmount).toLocaleString(undefined, {minimumFractionDigits: 2})}` : '';
+                const amountText = tenant.leaseAmount ? `\n\nAmount Due: ₱${parseFloat(tenant.leaseAmount).toLocaleString(undefined, {minimumFractionDigits: 2})}` : '';
                 throttledSend(() => bot.telegram.sendMessage(
                     tenant.telegramId,
-                    `Friendly Rent Reminder\n\nHi ${tenant.name}, just a heads up that your rent for Unit ${tenant.unit} is due in ${reminderDays} days on ${format(nextDueDate, 'MMMM do, yyyy')}.${amountText}\n\nPlease prepare your payment. Thank you!`
+                    `🏠 Rent Reminder\n\nHi ${tenant.name}, your rent for Unit ${tenant.unit} is due in ${reminderDays} day${reminderDays !== 1 ? 's' : ''} on ${format(nextDueDate, 'MMMM d, yyyy')}.${amountText}\n\nIf you've already sent your payment or have a prepaid balance on file, you're all good — no action needed. Otherwise, please prepare your payment before the due date.\n\nThank you! 🙏`
                 )).catch(err => console.error(`Failed to send reminder to ${tenant.name}:`, err));
             }
 

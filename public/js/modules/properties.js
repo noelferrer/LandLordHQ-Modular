@@ -34,7 +34,7 @@ function renderPropertiesGrid() {
         const occupancyColor = isFull ? 'var(--danger)' : tCount > 0 ? 'var(--success)' : 'var(--text-muted)';
         
         const isInactive = p.status === 'Inactive' || p.status === 'Maintenance';
-        const cardStyle = isInactive ? 'cursor: pointer; opacity: 0.6; filter: grayscale(0.5);' : 'cursor: pointer;';
+        const cardStyle = isInactive ? 'cursor: pointer; opacity: 0.45; filter: grayscale(1) contrast(0.85);' : 'cursor: pointer;';
 
         grid.innerHTML += `
         <div class="card" data-action="showPropertyDetail" data-args="${escAttr(p.id)}" style="${cardStyle}">
@@ -117,8 +117,8 @@ async function showPropertyDetail(id) {
                     </div>
                 </div>
                 <div style="display: flex; gap: 12px;">
-                    <button class="btn btn-outline" style="width: auto; border-radius: 10px;" data-action="editProperty" data-args="${escAttr(p.id)}"><i class="fas fa-edit"></i> Edit</button>
-                    <button class="btn" style="width: auto; border-radius: 10px; background: var(--danger); color: #fff;" data-action="deleteProperty" data-args="${escAttr(p.id)}"><i class="fas fa-trash-alt"></i> Delete</button>
+                    <button class="btn btn-outline" style="width: auto; height: 40px; padding: 0 18px; border-radius: 10px;" data-action="editProperty" data-args="${escAttr(p.id)}"><i class="fas fa-edit"></i> Edit</button>
+                    <button class="btn" style="width: auto; height: 40px; padding: 0 18px; border-radius: 10px; background: var(--danger); color: #fff;" data-action="deleteProperty" data-args="${escAttr(p.id)}"><i class="fas fa-trash-alt"></i> Delete</button>
                 </div>
             </div>
             <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px; margin-bottom: 24px;">
@@ -151,7 +151,7 @@ async function showPropertyDetail(id) {
                 <div style="overflow-x: auto;">
                     ${pTenants.length === 0 ? `<div style="padding: 30px; text-align: center; color: var(--text-muted); font-size: 0.9rem;"><i class="fas fa-user-slash" style="font-size: 1.5rem; margin-bottom: 10px; display: block; opacity: 0.4;"></i>No tenants assigned to this property.</div>` : `
                     <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
-                        <thead><tr><th style="text-align: left;">Tenant</th><th style="text-align: left;">Unit</th><th style="text-align: left;">Lease Amount</th><th style="text-align: left;">Move-in Date</th><th style="text-align: left;">Due Day</th><th style="text-align: left;">Status</th><th style="text-align: right;"></th></tr></thead>
+                        <thead><tr><th style="text-align: left;">Tenant</th><th style="text-align: left;">Unit</th><th style="text-align: left;">Lease Amount</th><th style="text-align: left;">Move-in Date</th><th style="text-align: left;">Due Day</th><th style="text-align: left;">Status</th><th style="text-align: right;">Actions</th></tr></thead>
                         <tbody>${pTenants.map(t => {
                             const statusClass = t.status === 'Active' ? 'pill-success' : 'pill-warning';
                             const moveIn = t.moveInDate ? new Date(t.moveInDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
@@ -162,7 +162,7 @@ async function showPropertyDetail(id) {
                                 <td style="padding: 12px 8px; color: var(--text-muted);">${moveIn}</td>
                                 <td style="padding: 12px 8px; color: var(--text-muted); text-align: center;">Day ${t.rentDueDay || 1}</td>
                                 <td style="padding: 12px 8px;"><span class="status-pill ${statusClass}" style="font-size: 0.75rem;">${esc(t.status || 'Active')}</span></td>
-                                <td style="padding: 12px 0; text-align: right;"><button class="btn btn-outline" style="width: auto; padding: 5px 12px; font-size: 0.8rem; border-radius: 8px;" data-action="editTenant" data-args="${escAttr(t.unit)}"><i class="fas fa-edit"></i> Edit</button></td>
+                                <td style="padding: 12px 0; text-align: right;"><button class="btn btn-outline" style="width: 32px; height: 32px; padding: 0; font-size: 0.9rem; border-radius: 8px;" data-action="editTenant" data-args="${escAttr(t.unit)}" title="Edit Tenant"><i class="fas fa-edit"></i></button></td>
                             </tr>`;
                         }).join('')}</tbody>
                     </table>`}

@@ -57,7 +57,7 @@ module.exports = ({ db, helpers, middleware }) => {
     // Update a property
     router.put('/:id', authenticateAdmin, async (req, res) => {
         const { id } = req.params;
-        const { name, address, units, type, status } = req.body;
+        const { name, address, city, state, zip, units, type, status, description } = req.body;
         const updates = {};
 
         if (name !== undefined) {
@@ -72,6 +72,9 @@ module.exports = ({ db, helpers, middleware }) => {
             }
             updates.address = address;
         }
+        if (city !== undefined) updates.city = city;
+        if (state !== undefined) updates.state = state;
+        if (zip !== undefined) updates.zip = zip;
         if (units !== undefined) {
             const u = parseInt(units);
             if (isNaN(u) || u < 0 || u > 10000) {
@@ -91,6 +94,7 @@ module.exports = ({ db, helpers, middleware }) => {
             }
             updates.status = status;
         }
+        if (description !== undefined) updates.description = description;
 
         const [existing] = await pool.query('SELECT id FROM properties WHERE id = ? AND admin_id = ?', [id, req.admin.id]);
         if (existing.length === 0) {

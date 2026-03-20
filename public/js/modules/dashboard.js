@@ -50,6 +50,7 @@ async function refreshDashboard() {
         window.appSettings = settings;
         window.tenantData = tenants;
         window.propertyData = properties;
+        window._allPayments = payments;
 
         // Update Stats
         const statProps = document.getElementById('dash-total-properties');

@@ -27,6 +27,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.toggleSidebar();
                 break;
 
+            // Theme
+            case 'toggleTheme':
+                window.toggleTheme();
+                break;
+
             // Auth
             case 'logout':
                 window.logout();

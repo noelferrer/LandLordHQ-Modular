@@ -112,6 +112,17 @@ app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, '../login.html'));
 });
 
+// Serve Onboarding Guides
+app.get('/super-onboard', (req, res) => {
+    res.sendFile(path.join(__dirname, '../super-onboard.html'));
+});
+app.get('/client-onboard', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client-onboard.html'));
+});
+app.get('/tenant-onboard', (req, res) => {
+    res.sendFile(path.join(__dirname, '../tenant-onboard.html'));
+});
+
 // --- Health Check ---
 app.get('/api/health', async (req, res) => {
     const uptime = process.uptime();

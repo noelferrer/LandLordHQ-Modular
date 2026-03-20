@@ -25,6 +25,11 @@ async function submitRegistration() {
             document.getElementById('register-form').style.display = 'none';
             document.getElementById('claim-command').innerText = `/claim ${username}`;
             document.getElementById('success-state').style.display = 'block';
+        } else if (data.pendingClaim) {
+            // Account already created but Telegram not linked yet — re-show claim instructions
+            document.getElementById('register-form').style.display = 'none';
+            document.getElementById('claim-command').innerText = `/claim ${data.username}`;
+            document.getElementById('success-state').style.display = 'block';
         } else {
             err.innerText = data.error || "Registration failed.";
             err.style.display = 'block';
@@ -40,6 +45,20 @@ async function submitRegistration() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Auto-fill invite code from ?code= URL param
+    const params = new URLSearchParams(window.location.search);
+    const codeParam = params.get('code');
+    if (codeParam) {
+        const input = document.getElementById('code');
+        if (input) {
+            input.value = codeParam;
+            input.readOnly = true;
+            input.style.background = '#F3F4F6';
+            input.style.color = '#6B7280';
+            input.style.cursor = 'default';
+        }
+    }
+
     const form = document.getElementById('register-form');
     if (form) {
         form.addEventListener('submit', (e) => {

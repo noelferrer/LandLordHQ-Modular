@@ -122,7 +122,7 @@ function renderHistoryPage() {
             <td style="font-weight:600; color:var(--success); font-family:var(--font-mono)">${currencySymbol}${(parseFloat(p.amount) || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
             <td><div style="font-size:0.85rem">${dateObj.toLocaleDateString()}</div><div style="font-size:0.75rem; color:var(--text-muted)">${dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div></td>
             <td><div style="display: flex; align-items: center; gap: 8px;">${receiptHtml}<span class="status-pill pill-info" style="font-size:0.65rem; padding: 2px 6px;">${esc(p.method) || (p.type === 'manual' ? 'Manual' : 'Telegram')}</span></div></td>
-            <td style="text-align: right;"><button class="btn-outline" style="width: 32px; height: 32px; padding: 0; border: none; color: var(--danger); cursor: pointer;" data-action="deletePayment" data-id="${escAttr(p.id)}" data-name="${escAttr(p.tenantName)}"><i class="fas fa-trash-alt"></i></button></td>
+            <td style="text-align: right;"><button class="btn-outline" style="width: auto; height: 32px; padding: 0 12px; border: none; color: var(--danger); font-size: 0.9rem; cursor: pointer;" data-action="deletePayment" data-id="${escAttr(p.id)}" data-name="${escAttr(p.tenantName)}"><i class="fas fa-trash-alt"></i></button></td>
         </tr>`;
     });
     renderPagination('history-pagination', currentHistoryPage, totalPages, (page) => { currentHistoryPage = page; renderHistoryPage(); });
@@ -155,7 +155,7 @@ function renderExpensePage() {
             <td style="font-weight:600; color:var(--danger); font-family:var(--font-mono)">${currencySymbol}${e.amount.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
             <td style="color:var(--text-muted); font-size:0.9rem">${esc(e.description) || '—'}</td>
             <td style="color:var(--text-muted); font-size:0.85rem"><div>${new Date(e.timestamp).toLocaleDateString()}</div><div style="font-size:0.75rem; opacity:0.7;">${new Date(e.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div></td>
-            <td style="text-align: right;"><button class="btn-outline" style="width: 32px; height: 32px; padding: 0; border: none; color: var(--danger); cursor: pointer;" data-action="deleteExpense" data-id="${escAttr(e.id)}" data-name="${escAttr(e.category)}"><i class="fas fa-trash-alt"></i></button></td>
+            <td style="text-align: right;"><button class="btn-outline" style="width: auto; height: 32px; padding: 0 12px; border: none; color: var(--danger); font-size: 0.9rem; cursor: pointer;" data-action="deleteExpense" data-id="${escAttr(e.id)}" data-name="${escAttr(e.category)}"><i class="fas fa-trash-alt"></i></button></td>
         </tr>`;
     });
     renderPagination('expense-pagination', currentExpensePage, totalPages, (page) => { currentExpensePage = page; renderExpensePage(); });

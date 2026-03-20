@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tenant Onboarding | LandlordHQ</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  --navy:           #0B1D3A;
+  --navy-mid:       #132B52;
+  --navy-light:     #1A3566;
+  --electric:       #2B7AFF;
+  --electric-light: #5A9BFF;
+  --electric-dim:   rgba(43,122,255,0.10);
+  --gold:           #F5A623;
+  --gold-dim:       rgba(245,166,35,0.10);
+  --white:          #FFFFFF;
+  --off-white:      #F7F8FA;
+  --slate:          #64748B;
+  --slate-light:    #94A3B8;
+  --light-border:   #E2E8F0;
+  --success:        #22C55E;
+  --success-dim:    rgba(34,197,94,0.10);
+  --tg:             #229ED9;
+  --tg-dim:         rgba(34,158,217,0.10);
+  --font-display:   'Sora', sans-serif;
+  --font-body:      'DM Sans', sans-serif;
+  --font-mono:      'JetBrains Mono', monospace;
+  --radius:         14px;
+  --radius-lg:      22px;
+  --shadow:         0 4px 24px rgba(11,29,58,0.10);
+  --shadow-lg:      0 16px 56px rgba(11,29,58,0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  background: var(--off-white);
+  color: var(--navy);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ── NAV ── */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(11,29,58,0.97);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.nav-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 32px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+.nav-logo-icon {
+  width: 34px;
+  height: 34px;
+  background: linear-gradient(135deg, var(--tg) 0%, #1A7DAF 100%);
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 15px;
+}
+.nav-wordmark {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: -0.3px;
+}
+.nav-wordmark .hq { color: var(--electric-light); }
+.nav-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--tg);
+  background: rgba(34,158,217,0.14);
+  border: 1px solid rgba(34,158,217,0.28);
+  border-radius: 6px;
+  padding: 3px 8px;
+}
+
+/* ── HERO ── */
+.hero {
+  background: linear-gradient(160deg, #0A1C38 0%, #0C2244 45%, #0D2650 100%);
+  padding: 80px 32px 100px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 55% 50% at 20% 30%, rgba(34,158,217,0.12) 0%, transparent 65%),
+    radial-gradient(ellipse 40% 35% at 80% 70%, rgba(43,122,255,0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+.hero-inner { max-width: 680px; margin: 0 auto; position: relative; }
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--tg);
+  background: rgba(34,158,217,0.12);
+  border: 1px solid rgba(34,158,217,0.24);
+  border-radius: 30px;
+  padding: 6px 14px;
+  margin-bottom: 24px;
+}
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 5vw, 46px);
+  font-weight: 800;
+  color: var(--white);
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+  margin-bottom: 18px;
+}
+.hero h1 span { color: #5BC8EF; }
+.hero p {
+  font-size: 17px;
+  line-height: 1.7;
+  color: rgba(255,255,255,0.65);
+  max-width: 520px;
+  margin: 0 auto 28px;
+}
+.hero-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.45);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 30px;
+  padding: 7px 16px;
+}
+
+/* ── STEPS ── */
+.steps-section {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 72px 32px 80px;
+}
+.steps-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--tg);
+  margin-bottom: 10px;
+}
+.steps-heading {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 3vw, 30px);
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 48px;
+}
+
+.step-list { display: flex; flex-direction: column; gap: 0; }
+
+.step {
+  display: flex;
+  gap: 28px;
+  position: relative;
+}
+.step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 23px;
+  top: 52px;
+  bottom: -8px;
+  width: 2px;
+  background: linear-gradient(to bottom, rgba(34,158,217,0.2), transparent);
+}
+.step-left { flex-shrink: 0; }
+.step-num {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--tg) 0%, #1A7DAF 100%);
+  color: var(--white);
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(34,158,217,0.35);
+  flex-shrink: 0;
+}
+.step-num.success {
+  background: linear-gradient(135deg, var(--success) 0%, #16a34a 100%);
+  box-shadow: 0 6px 20px rgba(34,197,94,0.3);
+}
+.step-body {
+  background: var(--white);
+  border: 1px solid var(--light-border);
+  border-radius: var(--radius-lg);
+  padding: 28px 30px;
+  margin-bottom: 20px;
+  flex: 1;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.step-body:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+.step-body.highlight {
+  border-color: rgba(34,158,217,0.3);
+  background: linear-gradient(135deg, #FAFCFF 0%, #F0F8FF 100%);
+}
+.step-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--tg-dim);
+  color: var(--tg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  margin-bottom: 14px;
+}
+.step-icon.green { background: var(--success-dim); color: var(--success); }
+.step-title {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 8px;
+}
+.step-desc {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--slate);
+}
+.step-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 14px;
+  background: var(--tg-dim);
+  border: 1px solid rgba(34,158,217,0.18);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 13.5px;
+  color: var(--navy-mid);
+  line-height: 1.55;
+}
+.step-tip i { color: var(--tg); margin-top: 2px; flex-shrink: 0; }
+.step-tip.gold { background: var(--gold-dim); border-color: rgba(245,166,35,0.2); }
+.step-tip.gold i { color: var(--gold); }
+.step-tip.green { background: var(--success-dim); border-color: rgba(34,197,94,0.2); }
+.step-tip.green i { color: var(--success); }
+
+/* Chat bubble demo */
+.chat-demo {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.chat-msg {
+  max-width: 80%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.chat-msg.you {
+  background: var(--tg);
+  color: white;
+  border-bottom-right-radius: 4px;
+  align-self: flex-end;
+  font-family: var(--font-mono);
+  letter-spacing: 0.3px;
+}
+.chat-msg.bot {
+  background: var(--off-white);
+  border: 1px solid var(--light-border);
+  color: var(--navy);
+  border-bottom-left-radius: 4px;
+  align-self: flex-start;
+}
+.chat-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--slate-light);
+  margin-bottom: -4px;
+}
+.chat-label.right { text-align: right; }
+
+/* Code block */
+.code-block {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  background: var(--navy);
+  color: #5BC8EF;
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-top: 14px;
+  display: block;
+  letter-spacing: 0.5px;
+}
+.code-block .dim { color: rgba(255,255,255,0.3); }
+.code-block .highlight { color: var(--gold); }
+
+/* Features grid */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+}
+.feature-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--off-white);
+  border: 1px solid var(--light-border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 13.5px;
+  color: var(--navy-mid);
+  line-height: 1.5;
+}
+.feature-item i { color: var(--success); margin-top: 2px; flex-shrink: 0; }
+
+/* ── CTA ── */
+.cta-section {
+  background: linear-gradient(135deg, #0A1C38 0%, #0D2650 100%);
+  padding: 64px 32px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.cta-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 50% 60% at 50% 50%, rgba(34,158,217,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+.cta-inner { max-width: 540px; margin: 0 auto; position: relative; }
+.cta-section h2 {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 3vw, 30px);
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 14px;
+}
+.cta-section p {
+  font-size: 16px;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 32px;
+  line-height: 1.65;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  border-radius: var(--radius);
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  border: none;
+  transition: all 0.2s ease;
+}
+.btn-tg {
+  background: var(--tg);
+  color: var(--white);
+  box-shadow: 0 4px 20px rgba(34,158,217,0.4);
+}
+.btn-tg:hover {
+  background: #1A95CC;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(34,158,217,0.5);
+}
+.btn-ghost {
+  background: rgba(255,255,255,0.08);
+  color: var(--white);
+  border: 1px solid rgba(255,255,255,0.14);
+  margin-left: 12px;
+}
+.btn-ghost:hover {
+  background: rgba(255,255,255,0.14);
+  transform: translateY(-2px);
+}
+
+footer {
+  background: var(--navy);
+  padding: 24px 32px;
+  text-align: center;
+  font-size: 13px;
+  color: rgba(255,255,255,0.3);
+}
+footer a { color: rgba(255,255,255,0.45); text-decoration: none; }
+footer a:hover { color: var(--white); }
+
+@media (max-width: 640px) {
+  .nav-inner { padding: 0 20px; }
+  .hero { padding: 60px 20px 72px; }
+  .steps-section { padding: 52px 20px 60px; }
+  .step { gap: 18px; }
+  .step-body { padding: 22px 18px; }
+  .step-num { width: 40px; height: 40px; font-size: 15px; border-radius: 11px; }
+  .step:not(:last-child)::after { left: 19px; }
+  .features-grid { grid-template-columns: 1fr; }
+  .btn-ghost { margin-left: 0; margin-top: 12px; }
+  .cta-section { padding: 52px 20px; }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <div class="nav-logo-icon"><i class="fab fa-telegram-plane"></i></div>
+      <span class="nav-wordmark">Landlord<span class="hq">HQ</span></span>
+      <span class="nav-badge">Tenant</span>
+    </a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag"><i class="fab fa-telegram-plane"></i> Tenant Setup Guide</div>
+    <h1>Link Your <span>Telegram</span> in Under 2 Minutes</h1>
+    <p>Your landlord uses LandlordHQ to manage rent. Follow these steps to connect your account so you can receive reminders and send payment proofs directly on Telegram.</p>
+    <div class="hero-time"><i class="fas fa-clock"></i> Takes about 2 minutes to complete</div>
+  </div>
+</section>
+
+<!-- STEPS -->
+<section class="steps-section">
+  <div class="steps-label">Step-by-step</div>
+  <div class="steps-heading">How to link your Telegram account</div>
+
+  <div class="step-list">
+
+    <!-- Step 1 -->
+    <div class="step reveal">
+      <div class="step-left"><div class="step-num">1</div></div>
+      <div class="step-body">
+        <div class="step-icon"><i class="fas fa-key"></i></div>
+        <div class="step-title">Get Your Link Code from Your Landlord</div>
+        <div class="step-desc">Your landlord will give you a short link code — a few letters and numbers unique to your unit. Ask them for it before proceeding. It looks something like this:</div>
+        <code class="code-block"><span class="dim">Your link code: </span><span class="highlight">XK9M2P</span></code>
+        <div class="step-tip gold">
+          <i class="fas fa-exclamation-circle"></i>
+          <span>This code is tied to your unit. Don't share it with other tenants.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step reveal">
+      <div class="step-left"><div class="step-num">2</div></div>
+      <div class="step-body">
+        <div class="step-icon"><i class="fab fa-telegram-plane"></i></div>
+        <div class="step-title">Open Telegram and Find the Bot</div>
+        <div class="step-desc">Open the Telegram app on your phone or computer. In the search bar, search for the LandlordHQ bot name that your landlord provided. Tap on it to open the chat.</div>
+        <div class="step-tip">
+          <i class="fas fa-info-circle"></i>
+          <span>Search for <strong>@landlord_hq_bot</strong> on Telegram to get started.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step reveal">
+      <div class="step-left"><div class="step-num">3</div></div>
+      <div class="step-body highlight">
+        <div class="step-icon"><i class="fas fa-play-circle"></i></div>
+        <div class="step-title">Start the Bot</div>
+        <div class="step-desc">Tap the <strong>Start</strong> button or type <code style="background:var(--off-white); padding: 2px 7px; border-radius:5px; font-family: var(--font-mono); font-size:13px;">/start</code> and send it. The bot will introduce itself and ask how it can help.</div>
+        <div class="chat-demo">
+          <div class="chat-label right">You</div>
+          <div class="chat-msg you">/start</div>
+          <div class="chat-label">LandlordHQ Bot</div>
+          <div class="chat-msg bot">👋 Welcome to LandlordHQ! Send <strong>/link &lt;your code&gt;</strong> to connect your unit.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step reveal">
+      <div class="step-left"><div class="step-num">4</div></div>
+      <div class="step-body highlight">
+        <div class="step-icon"><i class="fas fa-link"></i></div>
+        <div class="step-title">Send Your Link Code</div>
+        <div class="step-desc">Type <strong>/link</strong> followed by a space and your code, then send it. Replace <strong>XK9M2P</strong> with the actual code your landlord gave you.</div>
+        <code class="code-block"><span class="dim">/link </span><span class="highlight">XK9M2P</span></code>
+        <div class="chat-demo" style="margin-top: 16px;">
+          <div class="chat-label right">You</div>
+          <div class="chat-msg you">/link XK9M2P</div>
+          <div class="chat-label">LandlordHQ Bot</div>
+          <div class="chat-msg bot">✅ You're linked! Welcome, <strong>Juan dela Cruz</strong> — Unit 3B. You'll now receive rent reminders here.</div>
+        </div>
+        <div class="step-tip green">
+          <i class="fas fa-check-circle"></i>
+          <span>Once you see the confirmation message, you're fully connected. No further action needed.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="step reveal">
+      <div class="step-left"><div class="step-num success">✓</div></div>
+      <div class="step-body">
+        <div class="step-icon green"><i class="fas fa-check-double"></i></div>
+        <div class="step-title">You're All Set!</div>
+        <div class="step-desc">Your Telegram is now linked to your rental unit. Here's what you can expect going forward:</div>
+        <div class="features-grid">
+          <div class="feature-item">
+            <i class="fas fa-bell"></i>
+            <span><strong>Rent reminders</strong> sent automatically on your due date</span>
+          </div>
+          <div class="feature-item">
+            <i class="fas fa-camera"></i>
+            <span><strong>Submit payment proof</strong> by sending a photo directly to the bot</span>
+          </div>
+          <div class="feature-item">
+            <i class="fas fa-wallet"></i>
+            <span><strong>Balance updates</strong> — see your prepaid balance anytime</span>
+          </div>
+          <div class="feature-item">
+            <i class="fas fa-receipt"></i>
+            <span><strong>Payment history</strong> tracked and visible to your landlord</span>
+          </div>
+        </div>
+        <div class="step-tip">
+          <i class="fas fa-info-circle"></i>
+          <span>If you ever need help, just message the bot or contact your landlord directly.</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <h2>Having Trouble Linking?</h2>
+    <p>Double-check your link code with your landlord and make sure you're messaging the right bot. If the issue persists, ask your landlord to reset your link code.</p>
+    <a href="https://t.me" target="_blank" class="btn btn-tg"><i class="fab fa-telegram-plane"></i> Open Telegram</a>
+    <a href="client-onboard.html" class="btn btn-ghost"><i class="fas fa-building"></i> Landlord Guide</a>
+  </div>
+</section>
+
+<!-- Commands Reference -->
+<section style="background:#fff; border-top:1px solid #E2E8F0; padding:72px 32px 80px;">
+  <div style="max-width:780px; margin:0 auto;">
+
+    <div style="text-align:center; margin-bottom:48px;">
+      <div style="display:inline-flex; align-items:center; justify-content:center; width:52px; height:52px; background:rgba(34,158,217,0.12); border-radius:14px; font-size:22px; color:#229ED9; margin-bottom:18px;">
+        <i class="fab fa-telegram-plane"></i>
+      </div>
+      <h2 style="font-family:'Sora',sans-serif; font-size:1.7rem; font-weight:800; color:#0B1D3A; margin-bottom:8px;">Telegram Commands Reference</h2>
+      <p style="color:#64748B; font-size:1rem;">All commands available to you in <strong style="color:#229ED9;">@landlord_hq_bot</strong></p>
+    </div>
+
+    <!-- Tenant Commands -->
+    <div style="background:#F7F8FA; border:1px solid #E2E8F0; border-radius:18px; overflow:hidden; margin-bottom:12px;">
+      <div style="display:flex; align-items:center; gap:10px; padding:16px 24px; background:rgba(34,158,217,0.08); border-bottom:1px solid #E2E8F0;">
+        <i class="fas fa-user" style="color:#229ED9; font-size:14px;"></i>
+        <span style="font-family:'Sora',sans-serif; font-weight:700; font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; color:#229ED9;">Tenant Commands</span>
+      </div>
+      <div>
+        <div style="display:flex; align-items:baseline; gap:16px; padding:14px 24px; border-bottom:1px solid #E2E8F0;">
+          <code style="font-family:'JetBrains Mono',monospace; font-size:0.82rem; color:#2B7AFF; background:rgba(43,122,255,0.08); padding:3px 10px; border-radius:7px; white-space:nowrap; flex-shrink:0;">/start</code>
+          <span style="color:#475569; font-size:0.9rem;">Show the welcome message</span>
+        </div>
+        <div style="display:flex; align-items:baseline; gap:16px; padding:14px 24px; border-bottom:1px solid #E2E8F0;">
+          <code style="font-family:'JetBrains Mono',monospace; font-size:0.82rem; color:#2B7AFF; background:rgba(43,122,255,0.08); padding:3px 10px; border-radius:7px; white-space:nowrap; flex-shrink:0;">/help</code>
+          <span style="color:#475569; font-size:0.9rem;">Show all available bot commands</span>
+        </div>
+        <div style="display:flex; align-items:baseline; gap:16px; padding:14px 24px; border-bottom:1px solid #E2E8F0;">
+          <code style="font-family:'JetBrains Mono',monospace; font-size:0.82rem; color:#2B7AFF; background:rgba(43,122,255,0.08); padding:3px 10px; border-radius:7px; white-space:nowrap; flex-shrink:0;">/link &lt;code&gt;</code>
+          <span style="color:#475569; font-size:0.9rem;">Link your rental unit using the code your landlord gave you</span>
+        </div>
+        <div style="display:flex; align-items:baseline; gap:16px; padding:14px 24px; border-bottom:1px solid #E2E8F0;">
+          <code style="font-family:'JetBrains Mono',monospace; font-size:0.82rem; color:#2B7AFF; background:rgba(43,122,255,0.08); padding:3px 10px; border-radius:7px; white-space:nowrap; flex-shrink:0;">/rules</code>
+          <span style="color:#475569; font-size:0.9rem;">View the house rules for your property</span>
+        </div>
+        <div style="display:flex; align-items:baseline; gap:16px; padding:14px 24px; border-bottom:1px solid #E2E8F0;">
+          <code style="font-family:'JetBrains Mono',monospace; font-size:0.82rem; color:#2B7AFF; background:rgba(43,122,255,0.08); padding:3px 10px; border-radius:7px; white-space:nowrap; flex-shrink:0;">/report &lt;issue&gt;</code>
+          <span style="color:#475569; font-size:0.9rem;">Submit a maintenance or concern ticket — you can also attach a photo or video as evidence</span>
+        </div>
+        <div style="display:flex; align-items:baseline; gap:16px; padding:14px 24px; border-bottom:1px solid #E2E8F0;">
+          <code style="font-family:'JetBrains Mono',monospace; font-size:0.82rem; color:#2B7AFF; background:rgba(43,122,255,0.08); padding:3px 10px; border-radius:7px; white-space:nowrap; flex-shrink:0;">/payment</code>
+          <span style="color:#475569; font-size:0.9rem;">Submit a payment receipt — send a photo or video to the bot with <code style="font-size:0.8rem; background:#EEF2FF; padding:1px 6px; border-radius:4px;">/payment</code> in the caption</span>
+        </div>
+        <div style="display:flex; align-items:baseline; gap:16px; padding:14px 24px;">
+          <code style="font-family:'JetBrains Mono',monospace; font-size:0.82rem; color:#2B7AFF; background:rgba(43,122,255,0.08); padding:3px 10px; border-radius:7px; white-space:nowrap; flex-shrink:0;">/clearance</code>
+          <span style="color:#475569; font-size:0.9rem;">View the move-out clearance process</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center; margin-top:28px; color:#94A3B8; font-size:0.85rem;">
+      <i class="fas fa-info-circle" style="margin-right:6px;"></i>
+      Type any command in the chat with <strong>@landlord_hq_bot</strong> on Telegram to use it.
+    </div>
+  </div>
+</section>
+
+<footer>
+  &copy; 2025 LandlordHQ &mdash; Automated rent management via Telegram
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

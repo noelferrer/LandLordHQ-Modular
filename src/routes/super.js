@@ -15,6 +15,8 @@ module.exports = ({ db, helpers, middleware }) => {
     // Generate a new invite code
     router.post('/api/super/invites', authenticateSuperAdmin, async (req, res) => {
         const code = 'INV-' + helpers.generateSecureCode(8);
+        const baseUrl = `${req.protocol}://${req.get('host')}`;
+        const signupLink = `${baseUrl}/signup?code=${code}`;
 
         await pool.query(
             'INSERT INTO invites (code, status, created_at) VALUES (?, ?, ?)',
@@ -22,7 +24,7 @@ module.exports = ({ db, helpers, middleware }) => {
         );
 
         auditLog(req.admin.id, 'create', 'invite', { code });
-        res.json({ success: true, invite: { code, status: 'active', createdAt: new Date().toISOString() } });
+        res.json({ success: true, invite: { code, signupLink, status: 'active', createdAt: new Date().toISOString() } });
     });
 
     // View audit log (super admin only)
@@ -35,9 +37,15 @@ module.exports = ({ db, helpers, middleware }) => {
         res.json(logs);
     });
 
-    // List all invite codes
+    // List all invite codes (with Telegram activation status)
     router.get('/api/super/invites', authenticateSuperAdmin, async (req, res) => {
-        const [rows] = await pool.query('SELECT * FROM invites ORDER BY created_at DESC');
+        const [rows] = await pool.query(`
+            SELECT i.*,
+                   CASE WHEN a.telegram_id IS NOT NULL THEN 1 ELSE 0 END AS telegram_linked
+            FROM invites i
+            LEFT JOIN admins a ON LOWER(a.username) = LOWER(i.claimed_by)
+            ORDER BY i.created_at DESC
+        `);
         const invites = mapRows(rows);
         res.json(invites);
     });

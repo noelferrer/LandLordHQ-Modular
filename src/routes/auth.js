@@ -159,9 +159,25 @@ module.exports = ({ db, bot, helpers, middleware }) => {
             const [inviteRows] = await conn.query('SELECT * FROM invites WHERE code = ? FOR UPDATE', [code.trim().toUpperCase()]);
             const invite = inviteRows[0];
 
-            if (!invite || invite.status !== 'active') {
+            if (!invite) {
                 await conn.rollback();
-                return res.status(400).json({ success: false, error: 'Invalid or already claimed invite code.' });
+                return res.status(400).json({ success: false, error: 'Invalid invite code.' });
+            }
+
+            // Invite already claimed — check if Telegram is still unlinked (forgot /claim)
+            if (invite.status === 'claimed') {
+                const claimedUsername = invite.claimed_by;
+                const [adminRows] = await conn.query(
+                    'SELECT username, name FROM admins WHERE LOWER(username) = LOWER(?) AND telegram_id IS NULL',
+                    [claimedUsername]
+                );
+                await conn.rollback();
+                if (adminRows.length > 0) {
+                    // Account created but Telegram not linked yet — resend claim instructions
+                    return res.json({ success: false, pendingClaim: true, username: adminRows[0].username });
+                }
+                // Fully claimed and Telegram linked — truly already used
+                return res.status(400).json({ success: false, error: 'This invite has already been used and the account is active.' });
             }
 
             const hoursOld = (new Date() - new Date(invite.created_at)) / (1000 * 60 * 60);

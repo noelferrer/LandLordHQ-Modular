@@ -20,8 +20,11 @@ export const TenantsModule = {
     order: 3,
     titleText: 'Tenants',
     subtitleText: 'Manage all tenant records',
-    headerTools: () => `<button class="btn btn-primary" style="width: auto;" data-action="openAddTenantModal"><i class="fas fa-plus"></i> Add Tenant</button>`,
-    onActivate: () => refreshTenants(),
+    headerTools: () => `
+        <div style="display:flex;align-items:center;gap:10px;">
+            <button class="btn btn-primary" style="width: auto;" data-action="openAddTenantModal"><i class="fas fa-plus"></i> Add Tenant</button>
+        </div>`,
+    onActivate: () => { refreshTenants(); },
 };
 
 let currentTenantsPage = 1;
@@ -100,22 +103,22 @@ function renderTenantsTable() {
 
         tbody.innerHTML += `
             <tr>
-                <td style="display: flex; align-items: center; gap: 10px;">
+                <td data-col="name" style="display: flex; align-items: center; gap: 10px;">
                     <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: var(--text-muted);"><i class="fas fa-user"></i></div>
                     <div style="font-weight: 500;">${esc(t.name)}</div>
                 </td>
-                <td style="color: var(--text-muted); font-size: 0.9rem;">${esc(t.phone) || '-'}</td>
-                <td style="color: var(--text-muted); font-size: 0.9rem;">${esc(prop.name)} - Unit ${esc(t.unit)}</td>
-                <td style="color: var(--text-muted); font-size: 0.9rem;">${t.moveInDate ? new Date(t.moveInDate).toLocaleDateString() : '-'}</td>
-                <td style="color: var(--text-muted); font-size: 0.9rem; text-align: center;">Day ${t.rentDueDay || 1}</td>
-                <td>${t.telegramId
+                <td data-col="phone" style="color: var(--text-muted); font-size: 0.9rem;">${esc(t.phone) || '-'}</td>
+                <td data-col="property"><div style="font-weight: 500; color: var(--text-main); font-size: 0.9rem;">${esc(prop.name)}</div><div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">Unit ${esc(t.unit)}</div></td>
+                <td data-col="moveIn" style="color: var(--text-muted); font-size: 0.9rem;">${t.moveInDate ? new Date(t.moveInDate).toLocaleDateString() : '-'}</td>
+                <td data-col="dueDay" style="color: var(--text-muted); font-size: 0.9rem; text-align: center;">Day ${t.rentDueDay || 1}</td>
+                <td data-col="linkCode">${t.telegramId
                     ? '<span style="color:var(--success); font-size: 0.85rem; font-weight:600;"><i class="fas fa-check-circle"></i> Linked</span>'
                     : `<span style="font-family:monospace; font-weight:bold; background:var(--bg); padding:4px 8px; border-radius:4px; font-size:0.9rem; color:var(--text); letter-spacing:1px; border: 1px solid var(--border);">${esc(t.linkCode) || '-'}</span>`
                 }</td>
-                <td style="text-align: right;">
-                    <button class="btn-outline" style="width: auto; height: 32px; padding: 0 12px; border: none; color: var(--primary); font-size: 0.9rem;" data-action="openTenantProfile" data-args="${escAttr(t.unit)}" title="View Profile"><i class="fas fa-eye"></i></button>
+                <td data-col="actions" style="text-align: right;">
+                    <button class="btn-outline" style="width: auto; height: 32px; padding: 0 12px; border: none; font-size: 0.9rem;" data-action="openTenantProfile" data-args="${escAttr(t.unit)}" title="View Profile"><i class="fas fa-eye"></i></button>
                     <button class="btn-outline" style="width: auto; height: 32px; padding: 0 12px; border: none; font-size: 0.9rem;" data-action="editTenant" data-args="${escAttr(t.unit)}" title="Edit"><i class="fas fa-edit"></i></button>
-                    <button class="btn-outline" style="width: 32px; height: 32px; padding: 0; border: none; color: var(--danger); font-size: 0.9rem;" data-action="deleteTenant" data-args="${escAttr(t.unit)}" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                    <button class="btn-outline" style="width: auto; height: 32px; padding: 0 12px; border: none; font-size: 0.9rem;" data-action="deleteTenant" data-args="${escAttr(t.unit)}" title="Delete"><i class="fas fa-trash-alt"></i></button>
                 </td>
             </tr>`;
     });
@@ -279,26 +282,30 @@ async function deleteTenant(unit) {
 }
 
 async function triggerRentCheck(unit) {
-    if (!confirm(`Are you sure you want to trigger a manual rent check for Unit ${unit}?\n\nThis will evaluate if they owe rent, auto-deduct from their prepaid balance if possible, or send them an overdue notice.`)) return;
-    
-    try {
-        const response = await fetch(`${API_URL}/tenants/${unit}/rent-check`, {
-            method: 'POST',
-            headers: csrfHeaders(),
-            credentials: 'include'
-        });
-        const result = await response.json();
-        
-        if (result.success) {
-            alert(`Rent Check Complete:\n${result.message}`);
-            openTenantProfile(unit); // Refresh the profile view
-        } else {
-            alert(`Error: ${result.error || 'Failed to process rent check'}`);
+    window.openConfirmModal(
+        'Trigger Rent Check',
+        `Run a manual rent check for Unit ${unit}? This will evaluate if rent is owed, auto-deduct from prepaid balance if available, or send an overdue notice.`,
+        'info',
+        async () => {
+            try {
+                const response = await fetch(`${API_URL}/tenants/${unit}/rent-check`, {
+                    method: 'POST',
+                    headers: csrfHeaders(),
+                    credentials: 'include'
+                });
+                const result = await response.json();
+                if (result.success) {
+                    window.openConfirmModal('Rent Check Complete', result.message, 'success');
+                    openTenantProfile(unit);
+                } else {
+                    window.openConfirmModal('Rent Check Failed', result.error || 'Failed to process rent check.', 'danger');
+                }
+            } catch (error) {
+                console.error('Error triggering rent check:', error);
+                window.openConfirmModal('Error', 'An unexpected error occurred. Please try again.', 'danger');
+            }
         }
-    } catch (error) {
-        console.error('Error triggering rent check:', error);
-        alert('An error occurred while processing the rent check.');
-    }
+    );
 }
 
 async function openTenantProfile(unit) {
@@ -354,9 +361,9 @@ async function openTenantProfile(unit) {
                     <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0;">${esc(prop.name)} &mdash; Unit ${esc(t.unit)}</p>
                 </div>
                 <div style="display: flex; gap: 10px;">
-                    <button class="btn btn-outline" style="width: auto; border-radius: 10px;" data-action="triggerRentCheck" data-args="${escAttr(t.unit)}"><i class="fas fa-sync"></i> Trigger Rent Check</button>
-                    <button class="btn btn-outline" style="width: auto; border-radius: 10px;" data-action="editTenant" data-args="${escAttr(t.unit)}"><i class="fas fa-edit"></i> Edit</button>
-                    <button class="btn" style="width: auto; border-radius: 10px; background: var(--danger); color: #fff;" data-action="deleteTenant" data-args="${escAttr(t.unit)}"><i class="fas fa-trash-alt"></i> Delete</button>
+                    <button class="btn btn-outline" style="width: auto; height: 40px; padding: 0 18px; border-radius: 10px;" data-action="triggerRentCheck" data-args="${escAttr(t.unit)}"><i class="fas fa-sync"></i> Trigger Rent Check</button>
+                    <button class="btn btn-outline" style="width: auto; height: 40px; padding: 0 18px; border-radius: 10px;" data-action="editTenant" data-args="${escAttr(t.unit)}"><i class="fas fa-edit"></i> Edit</button>
+                    <button class="btn" style="width: auto; height: 40px; padding: 0 18px; border-radius: 10px; background: var(--danger); color: #fff;" data-action="deleteTenant" data-args="${escAttr(t.unit)}"><i class="fas fa-trash-alt"></i> Delete</button>
                 </div>
             </div>
 
@@ -424,4 +431,5 @@ window.openAddTenantModal = openAddTenantModal;
 window.closeTenantModal = closeTenantModal;
 window.openTenantProfile = openTenantProfile;
 window.triggerRentCheck = triggerRentCheck;
+
 
