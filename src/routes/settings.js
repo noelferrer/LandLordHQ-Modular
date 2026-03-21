@@ -23,8 +23,9 @@ module.exports = ({ db, helpers, middleware }) => {
         ];
         const STRING_FIELDS = ['currency', 'fixer_id', 'property_name', 'timezone'];
         const TEXT_FIELDS = ['start_text', 'rules_text', 'clearance_text'];
-        const NUMBER_FIELDS = ['rent_reminder_days_before', 'rent_check_day', 'late_fee_amount', 'late_fee_grace_days'];
-        const BOOL_FIELDS = ['auto_deduct', 'late_fee_enabled'];
+        const INT_FIELDS    = ['rent_reminder_days_before', 'rent_check_day', 'late_fee_grace_days'];
+        const NUMBER_FIELDS = ['late_fee_amount'];
+        const BOOL_FIELDS   = ['auto_deduct', 'late_fee_enabled'];
 
         const newSettings = {};
         for (const key of ALLOWED_FIELDS) {
@@ -41,6 +42,15 @@ module.exports = ({ db, helpers, middleware }) => {
         for (const key of TEXT_FIELDS) {
             if (newSettings[key] !== undefined && typeof newSettings[key] === 'string' && newSettings[key].length > 5000) {
                 return res.status(400).json({ success: false, error: `${key} is too long (max 5000 chars).` });
+            }
+        }
+        for (const key of INT_FIELDS) {
+            if (newSettings[key] !== undefined) {
+                const val = parseInt(newSettings[key], 10);
+                if (isNaN(val) || val < 0) {
+                    return res.status(400).json({ success: false, error: `${key} must be a non-negative whole number.` });
+                }
+                newSettings[key] = val;
             }
         }
         for (const key of NUMBER_FIELDS) {
