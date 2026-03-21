@@ -122,7 +122,7 @@ async function verifyOtp() {
         const data = await res.json();
 
         if (data.success) {
-            window.location.href = '/';
+            window.location.href = '/app';
         } else {
             err.innerText = data.error || "Invalid code.";
             err.style.display = 'block';
@@ -145,5 +145,5 @@ function goBack() {
 
 // Auto-redirect if already logged in (cookie-based)
 fetch('/api/auth/check', { credentials: 'include' })
-    .then(res => { if (res.ok) window.location.href = '/'; })
+    .then(res => { if (res.ok) window.location.href = '/app'; })
     .catch(() => {});
