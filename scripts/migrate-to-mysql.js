@@ -112,7 +112,7 @@ async function main() {
                  tk.timestamp ? new Date(tk.timestamp) : new Date()]
             );
             totalMigrated++;
-            console.log(`  + Ticket: #${tk.id.substring(0, 8)}... (${tk.unit})`);
+            console.log(`  + Ticket: #${String(tk.id).substring(0, 8)}... (${tk.unit})`);
 
             // Migrate media array
             if (tk.media && Array.isArray(tk.media)) {
@@ -141,7 +141,7 @@ async function main() {
                  p.notes || null, p.fileId || null, p.mediaType || null]
             );
             totalMigrated++;
-            console.log(`  + Payment: ${p.id.substring(0, 8)}... (${p.unit})`);
+            console.log(`  + Payment: ${String(p.id).substring(0, 8)}... (${p.unit})`);
         }
 
         // --- 6. Expenses ---
@@ -156,7 +156,7 @@ async function main() {
                  e.category || '', parseFloat(e.amount) || 0, e.description || '']
             );
             totalMigrated++;
-            console.log(`  + Expense: ${e.id.substring(0, 8)}...`);
+            console.log(`  + Expense: ${String(e.id).substring(0, 8)}...`);
         }
 
         // --- 7. Settings ---
