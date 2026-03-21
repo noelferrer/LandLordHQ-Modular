@@ -31,7 +31,7 @@ async function fetchAPI(endpoint, options = {}) {
     try {
         const res = await fetch(endpoint, options);
         if (res.status === 401 || res.status === 403) {
-            window.location.replace('/');
+            window.location.replace('/login');
             return null;
         }
         return res.json();
