@@ -654,11 +654,6 @@ footer a:hover { color: var(--white); }
   &copy; 2025 LandlordHQ &mdash; Automated rent management via Telegram
 </footer>
 
-<script>
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
-  }, { threshold: 0.12 });
-  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-</script>
+<script src="js/reveal.js"></script>
 </body>
 </html>
