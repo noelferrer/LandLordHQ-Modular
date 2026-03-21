@@ -102,8 +102,13 @@ const { pool } = db;
 // --- Static Files ---
 app.use(express.static(path.join(__dirname, '../public')));
 
-// Serve Default
+// Serve Landing Page
 app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../landing.html'));
+});
+
+// Serve Dashboard App
+app.get('/app', (req, res) => {
     res.sendFile(path.join(__dirname, '../dashboard.html'));
 });
 

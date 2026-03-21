@@ -8,7 +8,7 @@ set -e
 
 APP_DIR="/var/www/landlordhq"
 LOG_DIR="/var/log/landlordhq"
-GITHUB_REPO="https://github.com/noelferrer/LandlordHQ.git"
+GITHUB_REPO="https://github.com/noelferrer/LandLordHQ-Modular.git"
 GREEN="\033[0;32m"
 YELLOW="\033[1;33m"
 RED="\033[0;31m"
@@ -95,8 +95,7 @@ restart_or_start() {
   fi
 }
 
-restart_or_start "landlordhq-dashboard"
-restart_or_start "landlordhq-bot"
+restart_or_start "landlordhq"
 
 pm2 save --force > /dev/null
 ok "PM2 state saved"
@@ -104,14 +103,14 @@ ok "PM2 state saved"
 # ── 8. Health check ─────────────────────────────────────────
 log "Health check..."
 sleep 3
-HTTP=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/api/health 2>/dev/null || echo "000")
+HTTP=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:4000/api/health 2>/dev/null || echo "000")
 
 if [ "$HTTP" = "200" ] || [ "$HTTP" = "401" ] || [ "$HTTP" = "302" ]; then
   ok "Server responding (HTTP $HTTP)"
 else
   warn "Health check returned HTTP $HTTP"
   log "Recent server logs:"
-  pm2 logs landlordhq-dashboard --lines 15 --nostream 2>/dev/null || true
+  pm2 logs landlordhq --lines 15 --nostream 2>/dev/null || true
 fi
 
 # ── 9. Done ─────────────────────────────────────────────────
@@ -122,5 +121,5 @@ echo -e "${CYAN}=================================================${RESET}"
 echo ""
 pm2 status
 echo ""
-log "Logs: pm2 logs landlordhq-dashboard  |  pm2 logs landlordhq-bot"
+log "Logs: pm2 logs landlordhq"
 echo ""
