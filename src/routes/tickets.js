@@ -8,27 +8,32 @@ module.exports = ({ db, bot, helpers, middleware }) => {
 
     // Get all tickets (with media)
     router.get('/', authenticateAdmin, async (req, res) => {
-        const [rows] = await pool.query('SELECT * FROM tickets WHERE admin_id = ? ORDER BY timestamp DESC', [req.admin.id]);
-        const tickets = mapRows(rows);
+        try {
+            const [rows] = await pool.query('SELECT * FROM tickets WHERE admin_id = ? ORDER BY timestamp DESC', [req.admin.id]);
+            const tickets = mapRows(rows);
 
-        // Attach media to each ticket
-        if (tickets.length > 0) {
-            const ticketIds = tickets.map(t => t.id);
-            const [mediaRows] = await pool.query('SELECT * FROM ticket_media WHERE ticket_id IN (?)', [ticketIds]);
-            const mediaMap = {};
-            for (const m of mediaRows) {
-                if (!mediaMap[m.ticket_id]) mediaMap[m.ticket_id] = [];
-                mediaMap[m.ticket_id].push({ type: m.type, fileId: m.file_id });
+            // Attach media to each ticket
+            if (tickets.length > 0) {
+                const ticketIds = tickets.map(t => t.id);
+                const [mediaRows] = await pool.query('SELECT * FROM ticket_media WHERE ticket_id IN (?)', [ticketIds]);
+                const mediaMap = {};
+                for (const m of mediaRows) {
+                    if (!mediaMap[m.ticket_id]) mediaMap[m.ticket_id] = [];
+                    mediaMap[m.ticket_id].push({ type: m.type, fileId: m.file_id });
+                }
+                for (const t of tickets) {
+                    t.media = mediaMap[t.id] || [];
+                }
             }
-            for (const t of tickets) {
-                t.media = mediaMap[t.id] || [];
-            }
-        }
 
-        if (req.query.page) {
-            return res.json(paginate(tickets, req.query.page, req.query.limit));
+            if (req.query.page) {
+                return res.json(paginate(tickets, req.query.page, req.query.limit));
+            }
+            res.json(tickets);
+        } catch (err) {
+            console.error('Error fetching tickets:', err);
+            res.status(500).json({ success: false, error: 'Failed to load tickets. Please try again.' });
         }
-        res.json(tickets);
     });
 
     // Forward ticket to fixer

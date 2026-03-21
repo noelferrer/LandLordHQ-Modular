@@ -21,14 +21,19 @@ let currentExpensePage = 1;
 
 async function refreshFinanceHub() {
     try {
-        const [payRes, expRes, sumRes] = await Promise.all([
+        const [payRes, expRes, sumRes, settingsRes] = await Promise.all([
             fetch(`${API_URL}/payments?t=${Date.now()}`, { credentials: 'include' }),
             fetch(`${API_URL}/expenses?t=${Date.now()}`, { credentials: 'include' }),
-            fetch(`${API_URL}/finance/summary?t=${Date.now()}`, { credentials: 'include' })
+            fetch(`${API_URL}/finance/summary?t=${Date.now()}`, { credentials: 'include' }),
+            fetch(`${API_URL}/settings`, { credentials: 'include' })
         ]);
         const payments = await payRes.json();
         const expenses = await expRes.json();
         const summary = await sumRes.json();
+        if (settingsRes.ok) {
+            const s = await settingsRes.json();
+            if (s && typeof s === 'object' && !Array.isArray(s)) window.appSettings = s;
+        }
 
         renderPaymentsHistory(payments, window.tenantData || [], window.propertyData || []);
         renderExpenses(expenses);
@@ -54,7 +59,7 @@ function renderFinanceUpcoming(tenants, properties, payments) {
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
     const currentMonthStart = new Date(currentYear, currentMonth, 1).getTime();
-    const reminderDays = parseInt(window.appSettings?.rent_reminder_days_before) || 5;
+    const reminderDays = parseInt(window.appSettings?.rentReminderDaysBefore) || 5;
 
     const verifiedPayments = payments.filter(p => p.status === 'verified');
 
@@ -116,8 +121,9 @@ function renderHistoryPage() {
         let property = properties.find(prop => String(prop.id) === String(p.propertyId));
         if (!property) { const t = tenants.find(ten => String(ten.unit) === String(p.unit)); if (t && t.propertyId) property = properties.find(prop => String(prop.id) === String(t.propertyId)); }
         const pName = property ? property.name : (p.propertyName || 'Unassigned');
+        const displayName = p.tenantName || (tenants.find(t => String(t.unit) === String(p.unit))?.name) || `Unit ${p.unit}`;
         tbody.innerHTML += `<tr>
-            <td>${esc(p.tenantName) || 'Tenant'}</td>
+            <td>${esc(displayName)}</td>
             <td><div style="font-weight:500">${esc(pName)}</div><div style="font-size:0.75rem; color:var(--text-muted)">Unit ${esc(p.unit)}</div></td>
             <td style="font-weight:600; color:var(--success); font-family:var(--font-mono)">${currencySymbol}${(parseFloat(p.amount) || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
             <td><div style="font-size:0.85rem">${dateObj.toLocaleDateString()}</div><div style="font-size:0.75rem; color:var(--text-muted)">${dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div></td>
@@ -240,8 +246,18 @@ async function deletePayment(id, name) {
     window.openConfirmModal('Delete Payment', `Are you sure you want to delete the payment log for ${name || 'this tenant'}? This will also deduct the amount from your total collection.`, 'danger', async () => {
         try {
             const res = await fetch(`${API_URL}/payments/${id}`, { method: 'DELETE', credentials: 'include', headers: { 'X-CSRF-Token': getCsrfToken() } });
-            if (res.ok) { window.openConfirmModal('Deleted!', 'Payment record has been removed.', 'success'); refreshFinanceHub(); window.refreshDashboard(); }
-        } catch (err) { console.error(err); }
+            if (res.ok) {
+                window.openConfirmModal('Deleted!', 'Payment record has been removed.', 'success');
+                refreshFinanceHub();
+                window.refreshDashboard();
+            } else {
+                const err = await res.json();
+                window.openConfirmModal('Error', err.error || 'Failed to delete payment.', 'danger');
+            }
+        } catch (err) {
+            console.error(err);
+            window.openConfirmModal('Error', 'A network error occurred. Please try again.', 'danger');
+        }
     });
 }
 
@@ -249,22 +265,32 @@ async function deleteExpense(id, category) {
     window.openConfirmModal('Delete Expense', `Are you sure you want to delete the expense record: ${category}?`, 'danger', async () => {
         try {
             const res = await fetch(`${API_URL}/expenses/${id}`, { method: 'DELETE', credentials: 'include', headers: { 'X-CSRF-Token': getCsrfToken() } });
-            if (res.ok) { window.openConfirmModal('Deleted!', 'Expense record has been removed.', 'success'); refreshFinanceHub(); window.refreshDashboard(); }
-        } catch (err) { console.error(err); }
+            if (res.ok) {
+                window.openConfirmModal('Deleted!', 'Expense record has been removed.', 'success');
+                refreshFinanceHub();
+                window.refreshDashboard();
+            } else {
+                const err = await res.json();
+                window.openConfirmModal('Error', err.error || 'Failed to delete expense.', 'danger');
+            }
+        } catch (err) {
+            console.error(err);
+            window.openConfirmModal('Error', 'A network error occurred. Please try again.', 'danger');
+        }
     });
 }
 
 async function openManualPaymentModal() {
     const select = document.getElementById('payment-tenant');
-    if (window.tenantData && window.tenantData.length > 0) {
-        select.innerHTML = window.tenantData.filter(t => t.status === 'Active').map(t => `<option value="${escAttr(t.unit)}">${esc(t.name)} (UNIT-${esc(t.unit)})</option>`).join('');
-    } else {
-        try {
-            const res = await fetch(`${API_URL}/tenants?t=${Date.now()}`, { credentials: 'include' });
-            const tenants = await res.json();
-            window.tenantData = tenants;
-            select.innerHTML = tenants.filter(t => t.status === 'Active').map(t => `<option value="${escAttr(t.unit)}">${esc(t.name)} (UNIT-${esc(t.unit)})</option>`).join('');
-        } catch (e) { console.error(e); }
+    try {
+        const res = await fetch(`${API_URL}/tenants?t=${Date.now()}`, { credentials: 'include' });
+        const tenants = await res.json();
+        window.tenantData = tenants;
+        select.innerHTML = tenants.filter(t => t.status === 'Active').map(t => `<option value="${escAttr(t.unit)}">${esc(t.name)} (UNIT-${esc(t.unit)})</option>`).join('');
+    } catch (e) {
+        console.error(e);
+        window.openConfirmModal('Error', 'Could not load tenant list. Please try again.', 'danger');
+        return;
     }
     document.getElementById('payment-form').reset();
     document.getElementById('payment-modal').style.display = 'flex';
@@ -278,25 +304,54 @@ document.getElementById('payment-form').onsubmit = async (e) => {
     e.preventDefault();
     const unit = document.getElementById('payment-tenant').value;
     const tenant = window.tenantData.find(t => t.unit === unit);
-    const data = { unit, tenantName: tenant ? tenant.name : 'Unknown', propertyId: tenant ? tenant.propertyId : null, amount: parseFloat(document.getElementById('payment-amount').value), method: document.getElementById('payment-method').value, notes: document.getElementById('payment-notes').value };
-    const currencySymbol = document.getElementById('currency')?.value || '₱';
+    const amount = parseFloat(document.getElementById('payment-amount').value);
+    if (!unit) { window.openConfirmModal('Error', 'Please select a tenant.', 'danger'); return; }
+    if (isNaN(amount) || amount <= 0) { window.openConfirmModal('Error', 'Please enter a valid payment amount greater than zero.', 'danger'); return; }
+    const data = { unit, tenantName: tenant ? tenant.name : 'Unknown', propertyId: tenant ? tenant.propertyId : null, amount, method: document.getElementById('payment-method').value, notes: document.getElementById('payment-notes').value };
+    const currencySymbol = window.appSettings?.currency || '₱';
     window.openConfirmModal('Log Payment', `Log a manual payment of ${currencySymbol}${data.amount.toLocaleString(undefined, {minimumFractionDigits: 2})} for ${data.tenantName}?`, 'info', async () => {
         try {
             const res = await fetch(`${API_URL}/payments`, { method: 'POST', credentials: 'include', headers: { ...csrfHeaders() }, body: JSON.stringify(data) });
-            if (res.ok) { window.openConfirmModal('Success', 'Manual payment logged successfully.', 'success'); closePaymentModal(); refreshFinanceHub(); window.refreshDashboard(); }
-        } catch (err) { console.error(err); }
+            if (res.ok) {
+                window.openConfirmModal('Success', 'Manual payment logged successfully.', 'success');
+                closePaymentModal();
+                refreshFinanceHub();
+                window.refreshDashboard();
+            } else {
+                const err = await res.json();
+                window.openConfirmModal('Error', err.error || 'Failed to log payment.', 'danger');
+            }
+        } catch (err) {
+            console.error(err);
+            window.openConfirmModal('Error', 'A network error occurred. Please try again.', 'danger');
+        }
     });
 };
 
 document.getElementById('expense-form').onsubmit = async (e) => {
     e.preventDefault();
-    const data = { category: document.getElementById('expense-category').value, amount: parseFloat(document.getElementById('expense-amount').value), description: document.getElementById('expense-desc').value };
-    const currencySymbol = document.getElementById('currency')?.value || '₱';
+    const category = document.getElementById('expense-category').value.trim();
+    const amount = parseFloat(document.getElementById('expense-amount').value);
+    if (!category) { window.openConfirmModal('Error', 'Please enter an expense category.', 'danger'); return; }
+    if (isNaN(amount) || amount <= 0) { window.openConfirmModal('Error', 'Please enter a valid expense amount greater than zero.', 'danger'); return; }
+    const data = { category, amount, description: document.getElementById('expense-desc').value };
+    const currencySymbol = window.appSettings?.currency || '₱';
     window.openConfirmModal('Log Expense', `Log an expense of ${currencySymbol}${data.amount.toLocaleString(undefined, {minimumFractionDigits: 2})} for ${data.category}?`, 'info', async () => {
         try {
             const res = await fetch(`${API_URL}/expenses`, { method: 'POST', credentials: 'include', headers: { ...csrfHeaders() }, body: JSON.stringify(data) });
-            if (res.ok) { window.openConfirmModal('Success', 'Expense logged successfully.', 'success'); closeExpenseModal(); refreshFinanceHub(); window.refreshDashboard(); }
-        } catch (err) { console.error(err); }
+            if (res.ok) {
+                window.openConfirmModal('Success', 'Expense logged successfully.', 'success');
+                closeExpenseModal();
+                refreshFinanceHub();
+                window.refreshDashboard();
+            } else {
+                const err = await res.json();
+                window.openConfirmModal('Error', err.error || 'Failed to log expense.', 'danger');
+            }
+        } catch (err) {
+            console.error(err);
+            window.openConfirmModal('Error', 'A network error occurred. Please try again.', 'danger');
+        }
     });
 };
 

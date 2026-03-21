@@ -90,9 +90,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 break;
 
             // Properties
-            case 'showSection-back':
-                window.showSection(args[0]);
+            case 'showSection-back': {
+                const targetNav = document.querySelector(`.nav-item[data-action="showSection"][data-args="${args[0]}"]`);
+                window.showSection(args[0], targetNav);
                 break;
+            }
 
             // Generate invite (super.html)
             case 'generateInvite':

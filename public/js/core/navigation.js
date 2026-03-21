@@ -1,6 +1,12 @@
 // --- Navigation Module ---
 // Reads module definitions from registry to build dynamic sidebar
 
+// Maps detail views back to their parent nav section
+const DETAIL_PARENT = {
+    'property-detail': 'properties',
+    'tenant-detail':   'tenants',
+};
+
 export function showSection(id, el) {
     document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
     document.getElementById(`${id}-section`).classList.add('active');
@@ -9,9 +15,16 @@ export function showSection(id, el) {
         i.classList.remove('active');
         i.removeAttribute('aria-current');
     });
-    if (el) {
-        el.classList.add('active');
-        el.setAttribute('aria-current', 'page');
+
+    // If a nav element was passed use it; otherwise resolve the correct nav item
+    var activeEl = el;
+    if (!activeEl) {
+        var parentId = DETAIL_PARENT[id] || id;
+        activeEl = document.querySelector(`.nav-item[data-action="showSection"][data-args="${parentId}"]`);
+    }
+    if (activeEl) {
+        activeEl.classList.add('active');
+        activeEl.setAttribute('aria-current', 'page');
     }
 
     // Lookup module from registry for title/subtitle/tools

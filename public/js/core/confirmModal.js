@@ -10,7 +10,7 @@ export function openConfirmModal(title, msg, type, callback) {
     const cancelBtn = btn.previousElementSibling;
 
     cancelBtn.style.display = callback ? 'block' : 'none';
-    btn.innerText = callback ? 'Proceed' : 'Close';
+    btn.innerText = !callback ? 'Close' : type === 'danger' ? 'Confirm' : 'Proceed';
 
     if (type === 'danger') {
         icon.style.background = 'rgba(239, 68, 68, 0.1)';

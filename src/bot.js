@@ -348,11 +348,17 @@ bot.command('addtenant', isAdmin, async (ctx) => {
 
     const unit = args[0];
     const name = args[1];
-    const rent_due_day = parseInt(args[2]) || 1;
+    let rent_due_day = 1;
+    if (args[2] !== undefined) {
+        const parsed = parseInt(args[2]);
+        if (isNaN(parsed) || parsed < 1 || parsed > 31) {
+            return ctx.reply("Invalid due day. Please provide a number between 1 and 31.");
+        }
+        rent_due_day = parsed;
+    }
 
     if (unit.length > 20) return ctx.reply("Unit number is too long (max 20 characters).");
     if (name.length > 100) return ctx.reply("Tenant name is too long (max 100 characters).");
-    if (rent_due_day < 1 || rent_due_day > 31) return ctx.reply("Due day must be between 1 and 31.");
 
     const [existingRows] = await pool.query(
         'SELECT id FROM tenants WHERE unit = ? AND admin_id = ?', [unit, ctx.admin.id]
@@ -432,8 +438,8 @@ bot.command('broadcast', isAdmin, async (ctx) => {
     if (!text) return ctx.reply("Usage: /broadcast <Your Message Here>");
     if (text.length > 4000) return ctx.reply("Message too long. Max 4000 characters.");
 
-    // Escape Markdown special characters in user text to prevent injection
-    const escapedText = text.replace(/([_*\[\]()~`>#+\-=|{}.!\\])/g, '\\$1');
+    // Escape HTML special characters in user text to prevent injection
+    const escapedText = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
     const [rows] = await pool.query(
         'SELECT * FROM tenants WHERE admin_id = ? AND telegram_id IS NOT NULL',
@@ -453,8 +459,8 @@ bot.command('broadcast', isAdmin, async (ctx) => {
         try {
             await bot.telegram.sendMessage(
                 tenant.telegramId,
-                `📢 *Announcement from Landlord:*\n\n${escapedText}`,
-                { parse_mode: 'MarkdownV2' }
+                `📢 <b>Announcement from Landlord:</b>\n\n${escapedText}`,
+                { parse_mode: 'HTML' }
             );
             sent++;
         } catch (err) {

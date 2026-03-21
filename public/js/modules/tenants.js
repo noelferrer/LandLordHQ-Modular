@@ -142,6 +142,9 @@ async function openAddTenantModal() {
         ]);
         const properties = await propRes.json();
         const tenants = await tenRes.json();
+        // Keep global data fresh
+        window.propertyData = properties;
+        window.tenantData = tenants;
         const select = document.getElementById('tenant-property');
         select.innerHTML = properties.map(p => {
             const isInactive = p.status === 'Inactive' || p.status === 'Maintenance';
@@ -149,17 +152,21 @@ async function openAddTenantModal() {
             const occupied = tenants.filter(t => String(t.propertyId) === String(p.id)).length;
             const isFull = maxUnits > 0 && occupied >= maxUnits;
             const isDisabled = isFull || isInactive;
-            
+
             let label = esc(p.name);
             if (isInactive) label += ` (${p.status})`;
             else if (isFull) label += ' (Full)';
             if (maxUnits > 0 && !isInactive) label += ` — ${occupied}/${maxUnits}`;
-            
+
             return `<option value="${escAttr(p.id)}" ${isDisabled ? 'disabled' : ''}>${label}</option>`;
         }).join('');
         const firstEnabled = select.querySelector('option:not([disabled])');
         if (firstEnabled) firstEnabled.selected = true;
-    } catch (e) { console.error('Failed to load properties for dropdown', e); }
+    } catch (e) {
+        console.error('Failed to load properties for dropdown', e);
+        window.openConfirmModal('Error', 'Could not load properties. Please try again.', 'danger');
+        return;
+    }
 
     document.getElementById('tenant-modal').style.display = 'flex';
 }
@@ -204,8 +211,11 @@ document.getElementById('tenant-form').onsubmit = async (e) => {
                         window.openConfirmModal('Updated!', 'Tenant details have been updated.', 'success');
                         closeTenantModal();
                         refreshTenants();
+                        window.refreshDashboard();
                         const activeSection = document.querySelector('.content-section.active');
-                        if (activeSection && activeSection.id === 'property-detail-section' && window._currentDetailPropertyId) {
+                        if (activeSection && activeSection.id === 'tenant-detail-section' && window._currentDetailTenantUnit) {
+                            openTenantProfile(window._currentDetailTenantUnit);
+                        } else if (activeSection && activeSection.id === 'property-detail-section' && window._currentDetailPropertyId) {
                             window.showPropertyDetail(window._currentDetailPropertyId);
                         }
                     } else { const err = await res.json(); window.openConfirmModal('Error', err.error || 'Failed to update tenant.', 'danger'); }
@@ -215,8 +225,12 @@ document.getElementById('tenant-form').onsubmit = async (e) => {
     } else {
         try {
             const res = await fetch(`${API_URL}/tenants`, { method: 'POST', credentials: 'include', headers: { ...csrfHeaders() }, body: JSON.stringify(data) });
-            if (res.ok) { window.openConfirmModal('Created!', 'Tenant has been added.', 'success'); closeTenantModal(); refreshTenants(); }
-            else { const err = await res.json(); window.openConfirmModal('Error', err.error || 'Failed to add tenant.', 'danger'); }
+            if (res.ok) {
+                window.openConfirmModal('Created!', 'Tenant has been added.', 'success');
+                closeTenantModal();
+                refreshTenants();
+                window.refreshDashboard();
+            } else { const err = await res.json(); window.openConfirmModal('Error', err.error || 'Failed to add tenant.', 'danger'); }
         } catch (err) { console.error('Create error:', err); }
     }
 };
@@ -268,15 +282,25 @@ async function editTenant(unit) {
         }).join('');
 
         document.getElementById('tenant-modal').style.display = 'flex';
-    } catch (err) { console.error('Edit tenant lookup error:', err); }
+    } catch (err) {
+        console.error('Edit tenant lookup error:', err);
+        window.openConfirmModal('Error', 'Could not load tenant data. Please try again.', 'danger');
+    }
 }
 
 async function deleteTenant(unit) {
     window.openConfirmModal('Delete Tenant', 'Are you sure you want to remove this tenant?', 'danger', async () => {
         try {
             const res = await fetch(`${API_URL}/tenants/${unit}`, { method: 'DELETE', credentials: 'include', headers: { 'X-CSRF-Token': getCsrfToken() } });
-            if (res.ok) { window.openConfirmModal('Deleted!', 'Tenant has been removed.', 'success'); refreshTenants(); }
-            else { const err = await res.json(); window.openConfirmModal('Error', err.error || 'Failed to delete tenant.', 'danger'); }
+            if (res.ok) {
+                window.openConfirmModal('Deleted!', 'Tenant has been removed.', 'success');
+                refreshTenants();
+                window.refreshDashboard();
+                const activeSection = document.querySelector('.content-section.active');
+                if (activeSection && activeSection.id === 'tenant-detail-section') {
+                    window.showSection('tenants', document.querySelector('.nav-item[data-action="showSection"][data-args="tenants"]'));
+                }
+            } else { const err = await res.json(); window.openConfirmModal('Error', err.error || 'Failed to delete tenant.', 'danger'); }
         } catch (err) { console.error('Delete tenant error:', err); }
     });
 }
@@ -350,64 +374,166 @@ async function openTenantProfile(unit) {
                 </tr>`;
             }).join('');
 
-        const prepaidColor = parseFloat(t.prepaidBalance) > 0 ? 'var(--success)' : 'var(--text-muted)';
+        // ── Rent Due Tracker logic ─────────────────────────────────────
+        const todayD = new Date(); todayD.setHours(0,0,0,0);
+        const dueDay   = parseInt(t.rentDueDay) || 1;
+        const todayNum = todayD.getDate();
+        const yr = todayD.getFullYear(), mo = todayD.getMonth();
+
+        // Cycle boundaries
+        const cycleStart = todayNum >= dueDay
+            ? new Date(yr, mo, dueDay)
+            : new Date(yr, mo - 1, dueDay);
+        cycleStart.setHours(0,0,0,0);
+        const cycleEnd = todayNum >= dueDay
+            ? new Date(yr, mo + 1, dueDay)
+            : new Date(yr, mo, dueDay);
+
+        const totalCycleDays = Math.round((cycleEnd - cycleStart) / 86400000);
+        const daysIntoCycle  = Math.round((todayD  - cycleStart) / 86400000);
+        const daysLeft       = dueDay - todayNum;   // negative = overdue
+        const daysOverdue    = daysLeft < 0 ? Math.abs(daysLeft) : 0;
+
+        // Has a verified payment fallen within this cycle?
+        const paidThisCycle = tenantPayments.some(p => {
+            if (p.status !== 'verified') return false;
+            const pd = new Date(p.timestamp); pd.setHours(0,0,0,0);
+            return pd >= cycleStart && pd <= todayD;
+        });
+
+        const prepaidAmt  = parseFloat(t.prepaidBalance  || 0);
+        const leaseAmt    = parseFloat(t.leaseAmount      || 0);
+        const hasPrepaid  = prepaidAmt > 0 && prepaidAmt >= leaseAmt;
+
+        // Bar fill %: progress from cycleStart toward due date
+        const barRawPct = Math.min(100, Math.max(2, (daysIntoCycle / totalCycleDays) * 100));
+
+        // State resolution
+        let trackerColor, trackerBg, trackerStatusText, trackerIcon, trackerPct, trackerPulse = false;
+        if (paidThisCycle) {
+            trackerColor = 'var(--success)'; trackerBg = 'rgba(34,197,94,0.12)';
+            trackerIcon = 'fa-check-circle'; trackerStatusText = 'Paid this cycle';
+            trackerPct = barRawPct;
+        } else if (hasPrepaid) {
+            trackerColor = '#06b6d4'; trackerBg = 'rgba(6,182,212,0.12)';
+            trackerIcon = 'fa-wallet'; trackerStatusText = 'Covered by prepaid balance';
+            trackerPct = barRawPct;
+        } else if (daysOverdue > 0) {
+            trackerColor = 'var(--danger)'; trackerBg = 'rgba(239,68,68,0.12)';
+            trackerIcon = 'fa-exclamation-circle';
+            trackerStatusText = `${daysOverdue} day${daysOverdue !== 1 ? 's' : ''} overdue`;
+            trackerPct = 100; trackerPulse = true;
+        } else if (daysLeft === 0) {
+            trackerColor = '#f97316'; trackerBg = 'rgba(249,115,22,0.12)';
+            trackerIcon = 'fa-bell'; trackerStatusText = 'Due today';
+            trackerPct = 100; trackerPulse = true;
+        } else if (daysLeft <= 3) {
+            trackerColor = '#f97316'; trackerBg = 'rgba(249,115,22,0.12)';
+            trackerIcon = 'fa-exclamation-triangle';
+            trackerStatusText = `${daysLeft} day${daysLeft !== 1 ? 's' : ''} until due`;
+            trackerPct = barRawPct;
+        } else if (daysLeft <= 7) {
+            trackerColor = '#f59e0b'; trackerBg = 'rgba(245,158,11,0.12)';
+            trackerIcon = 'fa-clock';
+            trackerStatusText = `${daysLeft} days until due`;
+            trackerPct = barRawPct;
+        } else {
+            trackerColor = 'var(--primary)'; trackerBg = 'rgba(43,122,255,0.1)';
+            trackerIcon = 'fa-calendar-check';
+            trackerStatusText = `${daysLeft} days until due`;
+            trackerPct = barRawPct;
+        }
+
+        // Due-day marker position on the bar (% from left)
+        // The bar spans cycleStart → cycleEnd. The due date = cycleEnd = 100%.
+        const duePct = 100;
+        const todayPct = barRawPct;
+
+        const prepaidColor = prepaidAmt > 0 ? 'var(--success)' : 'var(--text-muted)';
+        // ── End tracker logic ───────────────────────────────────────────
 
         window.showSection('tenant-detail');
         const content = document.getElementById('tenant-detail-content');
         content.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px;">
+            <div style="display:flex; flex-direction:column; gap:24px;">
+            <!-- Header -->
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                 <div>
-                    <h2 style="font-size: 1.35rem; font-weight: 700; margin: 0 0 4px;">${esc(t.name)}</h2>
-                    <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0;">${esc(prop.name)} &mdash; Unit ${esc(t.unit)}</p>
+                    <h2 style="font-size:1.35rem; font-weight:700; margin:0 0 4px;">${esc(t.name)}</h2>
+                    <p style="font-size:0.9rem; color:var(--text-muted); margin:0;">${esc(prop.name)} &mdash; Unit ${esc(t.unit)}</p>
                 </div>
-                <div style="display: flex; gap: 10px;">
-                    <button class="btn btn-outline" style="width: auto; height: 40px; padding: 0 18px; border-radius: 10px;" data-action="triggerRentCheck" data-args="${escAttr(t.unit)}"><i class="fas fa-sync"></i> Trigger Rent Check</button>
-                    <button class="btn btn-outline" style="width: auto; height: 40px; padding: 0 18px; border-radius: 10px;" data-action="editTenant" data-args="${escAttr(t.unit)}"><i class="fas fa-edit"></i> Edit</button>
-                    <button class="btn" style="width: auto; height: 40px; padding: 0 18px; border-radius: 10px; background: var(--danger); color: #fff;" data-action="deleteTenant" data-args="${escAttr(t.unit)}"><i class="fas fa-trash-alt"></i> Delete</button>
-                </div>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 24px;">
-                <div class="card" style="padding: 28px;">
-                    <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 22px;"><i class="fas fa-user" style="margin-right:8px; color:var(--primary);"></i>Tenant Information</h3>
-                    <div style="display: flex; flex-direction: column; gap: 16px;">
-                        <div style="display:flex; align-items:center; gap:12px; color:var(--text-muted);"><i class="fas fa-envelope" style="width:20px;"></i><div><div style="font-size:0.8rem;">Email</div><div style="font-size:0.95rem; color:var(--text-main); font-weight:500;">${esc(t.email) || '\u2014'}</div></div></div>
-                        <div style="display:flex; align-items:center; gap:12px; color:var(--text-muted);"><i class="fas fa-phone" style="width:20px;"></i><div><div style="font-size:0.8rem;">Phone</div><div style="font-size:0.95rem; color:var(--text-main); font-weight:500;">${esc(t.phone) || '\u2014'}</div></div></div>
-                        <div style="display:flex; align-items:center; gap:12px; color:var(--text-muted);"><i class="fas fa-calendar-check" style="width:20px;"></i><div><div style="font-size:0.8rem;">Move-in Date</div><div style="font-size:0.95rem; color:var(--text-main); font-weight:500;">${fmtDate(t.moveInDate)}</div></div></div>
-                        <div style="display:flex; align-items:center; gap:12px; color:var(--text-muted);"><i class="fas fa-calendar-times" style="width:20px;"></i><div><div style="font-size:0.8rem;">Lease End Date</div><div style="font-size:0.95rem; color:var(--text-main); font-weight:500;">${fmtDate(t.leaseEndDate)}</div></div></div>
-                        <div style="display:flex; align-items:center; gap:12px; color:var(--text-muted);"><i class="fas fa-clock" style="width:20px;"></i><div><div style="font-size:0.8rem;">Rent Due Day</div><div style="font-size:0.95rem; color:var(--text-main); font-weight:500;">Every Day ${t.rentDueDay || 1}</div></div></div>
-                        ${t.remarks ? `<div style="margin-top:6px; padding:14px; background:var(--bg); border-radius:10px; border:1px solid var(--border);"><div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:4px;">Remarks</div><div style="font-size:0.85rem; line-height:1.6;">${esc(t.remarks)}</div></div>` : ''}
-                    </div>
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 16px;">
-                    <div class="card" style="padding: 20px; display: flex; align-items: center; gap: 16px;">
-                        <div class="stat-icon-lg bg-info"><i class="fas fa-coins"></i></div>
-                        <div><div style="font-size:1.3rem; font-weight:800;">${fmt(t.leaseAmount)}</div><div style="font-size:0.82rem; color:var(--text-muted);">Monthly Rent</div></div>
-                    </div>
-                    <div class="card" style="padding: 20px; display: flex; align-items: center; gap: 16px;">
-                        <div class="stat-icon-lg bg-success"><i class="fas fa-wallet"></i></div>
-                        <div><div style="font-size:1.3rem; font-weight:800; color:${prepaidColor};">${fmt(t.prepaidBalance)}</div><div style="font-size:0.82rem; color:var(--text-muted);">Prepaid Balance</div></div>
-                    </div>
-                    <div class="card" style="padding: 20px; display: flex; align-items: center; gap: 16px;">
-                        <div class="stat-icon-lg" style="background:rgba(245,158,11,0.1); color:#f59e0b;"><i class="fas fa-shield-alt"></i></div>
-                        <div><div style="font-size:1.3rem; font-weight:800;">${fmt(t.securityDeposit)}</div><div style="font-size:0.82rem; color:var(--text-muted);">Security Deposit</div></div>
-                    </div>
-                    <div class="card" style="padding: 20px; display: flex; align-items: center; gap: 16px;">
-                        <div class="stat-icon-lg" style="background:rgba(99,102,241,0.1); color:#6366f1;"><i class="fas fa-hand-holding-usd"></i></div>
-                        <div><div style="font-size:1.3rem; font-weight:800;">${fmt(t.advancePayment)}</div><div style="font-size:0.82rem; color:var(--text-muted);">Advance Payment</div></div>
-                    </div>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn btn-outline" style="width:auto; height:40px; padding:0 18px; border-radius:10px;" data-action="triggerRentCheck" data-args="${escAttr(t.unit)}"><i class="fas fa-sync"></i> Trigger Rent Check</button>
+                    <button class="btn btn-outline" style="width:auto; height:40px; padding:0 18px; border-radius:10px;" data-action="editTenant" data-args="${escAttr(t.unit)}"><i class="fas fa-edit"></i> Edit</button>
+                    <button class="btn" style="width:auto; height:40px; padding:0 18px; border-radius:10px; background:var(--danger); color:#fff;" data-action="deleteTenant" data-args="${escAttr(t.unit)}"><i class="fas fa-trash-alt"></i> Delete</button>
                 </div>
             </div>
 
-            <div class="card" style="padding: 24px;">
+            <!-- Tenant Information — full width, fields horizontal -->
+            <div class="card" style="padding:20px 24px;">
+                <h3 style="font-size:0.95rem; font-weight:700; margin-bottom:16px; display:flex; align-items:center; gap:8px;"><i class="fas fa-user" style="color:var(--primary);"></i> Tenant Information</h3>
+                <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:0; border:1px solid var(--border); border-radius:10px; overflow:hidden;">
+                    <div style="padding:14px 18px; border-right:1px solid var(--border);"><div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:5px; display:flex; align-items:center; gap:5px;"><i class="fas fa-envelope"></i> Email</div><div style="font-size:0.88rem; color:var(--text-main); font-weight:500; word-break:break-all;">${esc(t.email) || '\u2014'}</div></div>
+                    <div style="padding:14px 18px; border-right:1px solid var(--border);"><div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:5px; display:flex; align-items:center; gap:5px;"><i class="fas fa-phone"></i> Phone</div><div style="font-size:0.88rem; color:var(--text-main); font-weight:500;">${esc(t.phone) || '\u2014'}</div></div>
+                    <div style="padding:14px 18px; border-right:1px solid var(--border);"><div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:5px; display:flex; align-items:center; gap:5px;"><i class="fas fa-calendar-check"></i> Move-in Date</div><div style="font-size:0.88rem; color:var(--text-main); font-weight:500;">${fmtDate(t.moveInDate)}</div></div>
+                    <div style="padding:14px 18px; border-right:1px solid var(--border);"><div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:5px; display:flex; align-items:center; gap:5px;"><i class="fas fa-calendar-times"></i> Lease End</div><div style="font-size:0.88rem; color:var(--text-main); font-weight:500;">${fmtDate(t.leaseEndDate)}</div></div>
+                    <div style="padding:14px 18px;"><div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:5px; display:flex; align-items:center; gap:5px;"><i class="fas fa-clock"></i> Rent Due Day</div><div style="font-size:0.88rem; color:var(--text-main); font-weight:500;">Every Day ${dueDay}</div></div>
+                </div>
+                ${t.remarks ? `<div style="margin-top:12px; padding:11px 14px; background:var(--bg); border-radius:9px; border:1px solid var(--border); display:flex; gap:10px; align-items:flex-start;"><span style="font-size:0.72rem; color:var(--text-muted); white-space:nowrap; padding-top:2px;">Remarks</span><span style="font-size:0.85rem; line-height:1.6; color:var(--text-main);">${esc(t.remarks)}</span></div>` : ''}
+            </div>
+
+            <!-- KPI Strip -->
+            <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:24px; align-items:start;">
+                <div class="card" style="padding:16px 18px; display:flex; align-items:center; gap:12px;">
+                    <div style="width:36px; height:36px; border-radius:10px; background:rgba(43,122,255,0.1); color:var(--primary); display:flex; align-items:center; justify-content:center; font-size:0.9rem; flex-shrink:0;"><i class="fas fa-coins"></i></div>
+                    <div><div style="font-size:1.05rem; font-weight:800; line-height:1.2;">${fmt(t.leaseAmount)}</div><div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">Monthly Rent</div></div>
+                </div>
+                <div class="card" style="padding:16px 18px; display:flex; align-items:center; gap:12px;">
+                    <div style="width:36px; height:36px; border-radius:10px; background:rgba(34,197,94,0.1); color:var(--success); display:flex; align-items:center; justify-content:center; font-size:0.9rem; flex-shrink:0;"><i class="fas fa-wallet"></i></div>
+                    <div><div style="font-size:1.05rem; font-weight:800; line-height:1.2; color:${prepaidColor};">${fmt(t.prepaidBalance)}</div><div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">Prepaid Balance</div></div>
+                </div>
+                <div class="card" style="padding:16px 18px; display:flex; align-items:center; gap:12px;">
+                    <div style="width:36px; height:36px; border-radius:10px; background:rgba(245,158,11,0.1); color:#f59e0b; display:flex; align-items:center; justify-content:center; font-size:0.9rem; flex-shrink:0;"><i class="fas fa-shield-alt"></i></div>
+                    <div><div style="font-size:1.05rem; font-weight:800; line-height:1.2;">${fmt(t.securityDeposit)}</div><div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">Security Deposit</div></div>
+                </div>
+                <div class="card" style="padding:16px 18px; display:flex; align-items:center; gap:12px;">
+                    <div style="width:36px; height:36px; border-radius:10px; background:rgba(99,102,241,0.1); color:#6366f1; display:flex; align-items:center; justify-content:center; font-size:0.9rem; flex-shrink:0;"><i class="fas fa-hand-holding-usd"></i></div>
+                    <div><div style="font-size:1.05rem; font-weight:800; line-height:1.2;">${fmt(t.advancePayment)}</div><div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">Advance Payment</div></div>
+                </div>
+            </div>
+
+            <!-- Rent Due Tracker — full width -->
+            <div class="card" style="padding:20px 24px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+                    <h3 style="font-size:0.95rem; font-weight:700; display:flex; align-items:center; gap:8px; margin:0;">
+                        <i class="fas fa-chart-bar" style="color:${trackerColor};"></i> Rent Due Tracker
+                    </h3>
+                    <span style="font-size:0.75rem; font-weight:700; color:${trackerColor}; background:${trackerBg}; padding:4px 12px; border-radius:20px; display:flex; align-items:center; gap:5px; white-space:nowrap;">
+                        <i class="fas ${trackerIcon}"></i> ${trackerStatusText}
+                    </span>
+                </div>
+                <!-- Progress bar -->
+                <div style="position:relative; height:12px; background:var(--border); border-radius:999px; overflow:hidden; margin-bottom:10px;">
+                    <div style="position:absolute; left:0; top:0; height:100%; width:${trackerPct}%; background:${trackerColor}; border-radius:999px; transition:width 0.7s cubic-bezier(0.4,0,0.2,1);${trackerPulse ? 'animation:pulse-bar 1.6s ease-in-out infinite;' : ''}"></div>
+                </div>
+                <!-- Bar labels -->
+                <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted);">
+                    <span title="Cycle start">${cycleStart.toLocaleDateString(undefined,{month:'short',day:'numeric'})}</span>
+                    <span style="font-weight:600; color:var(--text-main);">Today: ${todayD.toLocaleDateString(undefined,{month:'short',day:'numeric'})}</span>
+                    <span style="font-weight:700; color:${trackerColor};" title="Next due date">Due: ${cycleEnd.toLocaleDateString(undefined,{month:'short',day:'numeric'})}</span>
+                </div>
+            </div>
+
+            <!-- Payment History -->
+            <div class="card" style="padding:24px;">
                 <div style="display:flex; align-items:center; gap:10px; margin-bottom:18px;">
                     <div style="width:28px; height:28px; border-radius:8px; background:rgba(43,122,255,0.1); color:var(--primary); display:flex; align-items:center; justify-content:center; font-size:0.85rem;"><i class="fas fa-history"></i></div>
                     <h3 style="font-size:1rem; font-weight:600;">Payment History</h3>
                     <span class="status-pill pill-info" style="font-size:0.75rem;">${tenantPayments.length} record${tenantPayments.length !== 1 ? 's' : ''}</span>
                 </div>
-                <div style="overflow-x: auto;">
+                <div style="overflow-x:auto;">
                     <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
-                        <thead><tr style="border-bottom: 2px solid var(--border);">
+                        <thead><tr style="border-bottom:2px solid var(--border);">
                             <th style="text-align:left; padding:8px 8px 12px; color:var(--text-muted); font-weight:600; font-size:0.8rem;">Date</th>
                             <th style="text-align:left; padding:8px 8px 12px; color:var(--text-muted); font-weight:600; font-size:0.8rem;">Amount</th>
                             <th style="text-align:left; padding:8px 8px 12px; color:var(--text-muted); font-weight:600; font-size:0.8rem;">Method</th>
@@ -418,7 +544,8 @@ async function openTenantProfile(unit) {
                         <tbody>${payRows}</tbody>
                     </table>
                 </div>
-            </div>`;
+            </div>
+            </div><!-- end flex column -->`;
     } catch (err) { console.error('Tenant profile error:', err); }
 }
 

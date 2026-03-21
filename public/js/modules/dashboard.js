@@ -91,43 +91,6 @@ async function refreshDashboard() {
             return !hasPaid && today > overdueThreshold;
         });
 
-        const overduePill = document.getElementById('dash-overdue-count-pill');
-        if (overduePill) {
-            overduePill.innerText = `${overdueTenants.length} Unpaid`;
-            overduePill.style.display = overdueTenants.length > 0 ? 'inline-block' : 'none';
-        }
-
-        const overdueListContainer = document.getElementById('dash-overdue-list');
-        if (overdueListContainer) {
-            if (overdueTenants.length === 0) {
-                overdueListContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-muted); font-size: 0.9rem;">No overdue payments.</div>';
-            } else {
-                overdueListContainer.innerHTML = `
-                    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
-                        <thead>
-                            <tr style="border-bottom: 1px solid var(--border); color: var(--text-muted);">
-                                <th style="padding-bottom: 12px; font-weight: 600;">Tenant</th>
-                                <th style="padding-bottom: 12px; font-weight: 600;">Property</th>
-                                <th style="padding-bottom: 12px; font-weight: 600;">Due Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${overdueTenants.slice(0, 3).map(t => {
-                                const pName = t.propertyId ? ((properties.find(prop => String(prop.id) === String(t.propertyId)) || {}).name || 'Unassigned') : 'Unassigned';
-                                const dueDate = new Date(today.getFullYear(), today.getMonth(), t.rentDueDay || 1);
-                                return `
-                                <tr style="border-bottom: 1px solid var(--border);">
-                                    <td style="padding: 10px 0; font-weight: 600;">${esc(t.name)}</td>
-                                    <td style="padding: 10px 0; color: var(--text-muted);">${esc(pName)}</td>
-                                    <td style="padding: 10px 0; color: var(--danger); font-weight: 600;">
-                                        <i class="fas fa-exclamation-triangle"></i> ${dueDate.toLocaleDateString(undefined, {month:'short', day:'numeric'})}
-                                    </td>
-                                </tr>`;
-                            }).join('')}
-                        </tbody>
-                    </table>`;
-            }
-        }
 
         // Recent Payments
         const recentBody = document.getElementById('dash-recent-payments');
@@ -202,43 +165,6 @@ async function refreshDashboard() {
             }
         }
 
-        // Upcoming Payments
-        const upcomingBody = document.getElementById('dash-upcoming-payments');
-        if (upcomingBody) {
-            upcomingBody.innerHTML = '';
-            const reminderDays = parseInt(settings.rent_reminder_days_before) || 5;
-            let upcomingList = tenants.filter(t => {
-                if (t.status === 'Inactive') return false;
-                const isOverdue = overdueTenants.some(ot => ot.unit === t.unit);
-                if (isOverdue) return false;
-                const hasPaid = verifiedPayments.some(p => p.unit === t.unit && new Date(p.timestamp).getTime() >= currentMonthStart);
-                if (hasPaid) return false;
-                // Only show if within reminder window (due date is within reminderDays from now)
-                const dueDay = t.rentDueDay || 1;
-                let dueDate = new Date(today.getFullYear(), today.getMonth(), dueDay);
-                if (dueDate < today) dueDate = new Date(today.getFullYear(), today.getMonth() + 1, dueDay);
-                const daysUntilDue = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
-                return daysUntilDue >= 0 && daysUntilDue <= reminderDays;
-            });
-
-            if (upcomingList.length === 0) {
-                upcomingBody.innerHTML = '<tr><td colspan="4" style="padding: 15px; text-align: center; color: var(--text-muted);">No upcoming payments for this period.</td></tr>';
-            } else {
-                upcomingBody.innerHTML = upcomingList.slice(0, 3).map(t => {
-                    const pName = (properties.find(p => String(p.id) === String(t.propertyId)) || {}).name || 'Unassigned';
-                    const dueDate = new Date(today.getFullYear(), today.getMonth(), t.rentDueDay || 1);
-                    return `
-                    <tr style="border-bottom: 1px solid var(--border);">
-                        <td style="padding: 12px 0; font-weight: 600;">${esc(t.name)}</td>
-                        <td style="padding: 12px 0; color: var(--text-muted);">${esc(pName)}</td>
-                        <td style="padding: 12px 0; font-weight: 600; color: var(--warning);">${currencySymbol}${(parseFloat(t.leaseAmount) || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
-                        <td style="padding: 12px 0;">
-                            <span class="status-pill pill-warning" style="font-size: 0.85rem;"><i class="fas fa-calendar-alt"></i> ${dueDate.toLocaleDateString()}</span>
-                        </td>
-                    </tr>`;
-                }).join('');
-            }
-        }
 
         // Support Overview
         const pendingTickets = tickets.filter(tk => tk.status !== 'closed');
@@ -389,12 +315,12 @@ async function refreshDashboard() {
         const settingsIds = ['remind-days', 'currency', 'fixer-id', 'start-text', 'rules-text', 'clearance-text'];
         if (document.getElementById('remind-days')) {
             if (!settingsIds.includes(focusedElement.id)) {
-                document.getElementById('remind-days').value = settings.rent_reminder_days_before || 5;
-                document.getElementById('currency').value = settings.currency || 'PHP';
-                document.getElementById('fixer-id').value = settings.fixer_id || '';
-                document.getElementById('start-text').value = settings.start_text || 'Welcome to Landlord HQ. Enter /help for more commands.';
-                document.getElementById('rules-text').value = settings.rules_text || '📝 **Condo House Rules:**\\n\\n1. No loud music after 10PM.\\n2. Keep common areas clean.';
-                document.getElementById('clearance-text').value = settings.clearance_text || '📦 **Move-out Clearance Process:**\\n\\n1. Settle all outstanding utility bills.\\n2. Submit the Clearance Form to the Admin office.\\n3. Send a photo of the signed form here for verification.';
+                document.getElementById('remind-days').value = settings.rentReminderDaysBefore || 5;
+                document.getElementById('currency').value = settings.currency || '₱';
+                document.getElementById('fixer-id').value = settings.fixerId || '';
+                document.getElementById('start-text').value = settings.startText || 'Welcome to Landlord HQ. Enter /help for more commands.';
+                document.getElementById('rules-text').value = settings.rulesText || '📝 **Condo House Rules:**\n\n1. No loud music after 10PM.\n2. Keep common areas clean.';
+                document.getElementById('clearance-text').value = settings.clearanceText || '📦 **Move-out Clearance Process:**\n\n1. Settle all outstanding utility bills.\n2. Submit the Clearance Form to the Admin office.\n3. Send a photo of the signed form here for verification.';
             }
         }
     } catch (err) { console.error('Data refresh error:', err); }

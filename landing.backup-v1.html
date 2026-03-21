@@ -1838,223 +1838,6 @@ body {
   .section-title { font-size: 26px; }
   .section-desc { font-size: 15px; }
 }
-
-/* ══════════════════════════════════════
-   PAIN POINTS SECTION
-══════════════════════════════════════ */
-.pain-section {
-  padding: 80px 0;
-  background: var(--off-white);
-  border-top: 1px solid var(--light-border);
-}
-
-.pain-header {
-  text-align: center;
-  margin-bottom: 56px;
-}
-
-.pain-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-}
-
-.pain-card {
-  background: var(--white);
-  border: 1px solid var(--light-border);
-  border-radius: var(--radius-lg);
-  padding: 32px;
-  position: relative;
-  transition: box-shadow 0.2s, transform 0.2s;
-}
-
-.pain-card:hover {
-  box-shadow: var(--shadow);
-  transform: translateY(-3px);
-}
-
-.pain-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius);
-  background: rgba(239, 68, 68, 0.08);
-  color: var(--danger);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  margin-bottom: 20px;
-}
-
-.pain-title {
-  font-family: var(--font-display);
-  font-size: 17px;
-  font-weight: 700;
-  color: var(--navy);
-  margin-bottom: 12px;
-  line-height: 1.3;
-}
-
-.pain-desc {
-  font-size: 14.5px;
-  color: var(--slate);
-  line-height: 1.7;
-}
-
-/* ══════════════════════════════════════
-   ACCESS REQUEST SECTION
-══════════════════════════════════════ */
-.demo-section {
-  padding: 100px 0;
-  background: var(--navy);
-  position: relative;
-  overflow: hidden;
-}
-
-.demo-section::before {
-  content: '';
-  position: absolute;
-  top: -200px;
-  right: -200px;
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, rgba(43,122,255,0.15) 0%, transparent 70%);
-  pointer-events: none;
-}
-
-.demo-inner {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 72px;
-  align-items: center;
-}
-
-.demo-promise {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 32px;
-}
-
-.promise-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 14.5px;
-  color: rgba(255,255,255,0.7);
-}
-
-.promise-item i {
-  color: var(--success);
-  font-size: 13px;
-  flex-shrink: 0;
-}
-
-.demo-form-wrap {
-  background: var(--white);
-  border-radius: var(--radius-xl);
-  padding: 40px;
-  box-shadow: var(--shadow-lg);
-}
-
-.demo-form {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.form-group label {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--navy);
-  letter-spacing: 0.2px;
-}
-
-.form-optional {
-  font-weight: 400;
-  color: var(--slate-light);
-}
-
-.form-group input,
-.form-group select {
-  padding: 12px 16px;
-  border: 1.5px solid var(--light-border);
-  border-radius: var(--radius);
-  font-family: var(--font-body);
-  font-size: 14.5px;
-  color: var(--navy);
-  background: var(--white);
-  transition: border-color 0.2s, box-shadow 0.2s;
-  outline: none;
-  appearance: none;
-  -webkit-appearance: none;
-}
-
-.form-group input:focus,
-.form-group select:focus {
-  border-color: var(--electric);
-  box-shadow: 0 0 0 3px rgba(43,122,255,0.1);
-}
-
-.form-group select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748B' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 14px center;
-  padding-right: 40px;
-  cursor: pointer;
-}
-
-.demo-submit {
-  width: 100%;
-  justify-content: center;
-  font-size: 15px;
-  padding: 15px 28px;
-  margin-top: 4px;
-}
-
-.demo-success {
-  text-align: center;
-  padding: 40px 20px;
-}
-
-.success-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: var(--success-dim);
-  color: var(--success);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  margin: 0 auto 20px;
-}
-
-.success-title {
-  font-family: var(--font-display);
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--navy);
-  margin-bottom: 10px;
-}
-
-.success-desc {
-  font-size: 15px;
-  color: var(--slate);
-  line-height: 1.6;
-}
-
-@media (max-width: 768px) {
-  .pain-grid { grid-template-columns: 1fr; }
-  .demo-inner { grid-template-columns: 1fr; gap: 40px; }
-  .demo-form-wrap { padding: 28px 20px; }
-}
 </style>
 </head>
 <body>
@@ -2088,13 +1871,14 @@ body {
       <ul class="nav-links">
         <li><a href="#features">Features</a></li>
         <li><a href="#how-it-works">How It Works</a></li>
+        <li><a href="#guides">Guides</a></li>
         <li><a href="#telegram">Telegram Bot</a></li>
-        <li><a href="#get-access">Get Access</a></li>
+        <li><a href="#testimonials">Reviews</a></li>
       </ul>
 
       <div class="nav-cta">
-        <a href="https://landlordhq.genolworks.online/login" class="nav-login">Sign In</a>
-        <a href="#get-access" class="btn btn-primary nav-btn">Get Access</a>
+        <a href="login.html" class="nav-login">Sign In</a>
+        <a href="signup.html" class="btn btn-primary nav-btn">Get Started Free</a>
       </div>
 
       <div class="hamburger" id="hamburger" aria-label="Menu">
@@ -2108,10 +1892,11 @@ body {
 <div class="mobile-menu" id="mobileMenu">
   <a href="#features"      onclick="closeMobileMenu()">Features</a>
   <a href="#how-it-works"  onclick="closeMobileMenu()">How It Works</a>
+  <a href="#guides"        onclick="closeMobileMenu()">Guides</a>
   <a href="#telegram"      onclick="closeMobileMenu()">Telegram Bot</a>
-  <a href="#get-access"  onclick="closeMobileMenu()">Get Access</a>
-  <a href="https://landlordhq.genolworks.online/login">Sign In</a>
-  <a href="#get-access" class="btn btn-primary" style="width:fit-content">Get Access</a>
+  <a href="#testimonials"  onclick="closeMobileMenu()">Reviews</a>
+  <a href="login.html">Sign In</a>
+  <a href="signup.html" class="btn btn-primary" style="width:fit-content">Get Started Free</a>
 </div>
 
 <!-- ══════════════════════════════════════
@@ -2142,13 +1927,13 @@ body {
           </p>
 
           <div class="hero-actions anim-fade-up delay-3">
-            <a href="#get-access" class="btn btn-primary">
-              Get Access
+            <a href="signup.html" class="btn btn-primary">
+              Get Started Free
               <i class="fas fa-arrow-right"></i>
             </a>
             <a href="#how-it-works" class="btn btn-ghost">
               <i class="fas fa-play-circle"></i>
-              How It Works
+              See How It Works
             </a>
           </div>
 
@@ -2170,9 +1955,15 @@ body {
           </div>
 
           <div class="hero-social-proof anim-fade-up delay-5">
-            <div class="hero-social-text" style="color:rgba(255,255,255,0.5); font-size:13px;">
-              <i class="fab fa-telegram-plane" style="margin-right:6px; color:rgba(255,255,255,0.35);"></i>
-              Built for Filipino landlords · Powered by Telegram
+            <div class="hero-avatars">
+              <div class="hero-avatar" style="background:#2B7AFF">M</div>
+              <div class="hero-avatar" style="background:#F5A623">R</div>
+              <div class="hero-avatar" style="background:#22C55E">J</div>
+              <div class="hero-avatar" style="background:#8B5CF6">A</div>
+            </div>
+            <div class="hero-social-text">
+              <strong>500+ landlords</strong> already automated.<br>
+              Averaging ₱120K+ collected per month.
             </div>
           </div>
         </div>
@@ -2291,29 +2082,55 @@ body {
 </section>
 
 <!-- ══════════════════════════════════════
-     PAIN POINTS
+     TICKER
 ══════════════════════════════════════ -->
-<section class="pain-section">
+<div class="ticker-bar">
+  <div class="ticker-track" id="ticker">
+    <div class="ticker-item"><i class="fas fa-star"></i> Automated Rent Reminders</div>
+    <div class="ticker-item"><i class="fas fa-star"></i> Telegram Bot for Tenants</div>
+    <div class="ticker-item"><i class="fas fa-star"></i> Real-time Occupancy Tracking</div>
+    <div class="ticker-item"><i class="fas fa-star"></i> Maintenance Ticket System</div>
+    <div class="ticker-item"><i class="fas fa-star"></i> Financial Reports & Insights</div>
+    <div class="ticker-item"><i class="fas fa-star"></i> Multi-Property Management</div>
+    <div class="ticker-item"><i class="fas fa-star"></i> OTP Login — No Password Needed</div>
+    <div class="ticker-item"><i class="fas fa-star"></i> Audit Log for All Actions</div>
+    <!-- Duplicate for infinite scroll -->
+    <div class="ticker-item"><i class="fas fa-star"></i> Automated Rent Reminders</div>
+    <div class="ticker-item"><i class="fas fa-star"></i> Telegram Bot for Tenants</div>
+    <div class="ticker-item"><i class="fas fa-star"></i> Real-time Occupancy Tracking</div>
+    <div class="ticker-item"><i class="fas fa-star"></i> Maintenance Ticket System</div>
+    <div class="ticker-item"><i class="fas fa-star"></i> Financial Reports & Insights</div>
+    <div class="ticker-item"><i class="fas fa-star"></i> Multi-Property Management</div>
+    <div class="ticker-item"><i class="fas fa-star"></i> OTP Login — No Password Needed</div>
+    <div class="ticker-item"><i class="fas fa-star"></i> Audit Log for All Actions</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     STATS STRIP
+══════════════════════════════════════ -->
+<section class="stats-strip">
   <div class="container">
-    <div class="pain-header reveal">
-      <div class="label-tag">Sound Familiar?</div>
-      <h2 class="section-title" style="margin-top:12px;">Managing Properties<br>Shouldn't Feel Like a <span style="color:var(--danger)">Second Job.</span></h2>
-    </div>
-    <div class="pain-grid">
-      <div class="pain-card reveal" style="transition-delay:0.05s">
-        <div class="pain-icon"><i class="fas fa-comment-slash"></i></div>
-        <div class="pain-title">Still texting tenants one by one every 1st?</div>
-        <div class="pain-desc">You send the same follow-up to everyone. Some reply, some ghost you. You chase, they promise. It repeats next month.</div>
+    <div class="stats-grid">
+      <div class="stat-item reveal">
+        <div class="stat-num"><span class="accent" data-count="500">0</span>+</div>
+        <div class="stat-label">Active Landlords</div>
+        <div class="stat-sublabel">Across the Philippines</div>
       </div>
-      <div class="pain-card reveal" style="transition-delay:0.1s">
-        <div class="pain-icon"><i class="fas fa-images"></i></div>
-        <div class="pain-title">Maintenance issues getting buried in Viber?</div>
-        <div class="pain-desc">A tenant reports a leaky faucet in a group chat. It gets buried under other messages. Two weeks later, they're upset — and you forgot.</div>
+      <div class="stat-item reveal" style="transition-delay:0.1s">
+        <div class="stat-num"><span class="accent" data-count="4800">0</span>+</div>
+        <div class="stat-label">Rental Units Managed</div>
+        <div class="stat-sublabel">And growing every week</div>
       </div>
-      <div class="pain-card reveal" style="transition-delay:0.2s">
-        <div class="pain-icon"><i class="fas fa-table"></i></div>
-        <div class="pain-title">No idea which property actually made money?</div>
-        <div class="pain-desc">You collected rent — but after utilities, repairs, and agent fees, it takes hours to know if you actually came out ahead this month.</div>
+      <div class="stat-item reveal" style="transition-delay:0.2s">
+        <div class="stat-num">₱<span class="accent" data-count="48">0</span>M+</div>
+        <div class="stat-label">Rent Collected</div>
+        <div class="stat-sublabel">Processed through the platform</div>
+      </div>
+      <div class="stat-item reveal" style="transition-delay:0.3s">
+        <div class="stat-num"><span class="accent" data-count="98">0</span>%</div>
+        <div class="stat-label">Avg. Occupancy Rate</div>
+        <div class="stat-sublabel">Platform-wide average</div>
       </div>
     </div>
   </div>
@@ -2325,7 +2142,7 @@ body {
 <section class="features" id="features">
   <div class="container">
     <div class="features-header reveal">
-      <div class="label-tag">What LandlordHQ Does</div>
+      <div class="label-tag">02 — Features</div>
       <h2 class="section-title">Everything a Landlord Needs.<br>Nothing They Don't.</h2>
       <p class="section-desc">From collecting rent to handling maintenance — LandlordHQ covers every corner of property management in one clean dashboard.</p>
     </div>
@@ -2412,7 +2229,7 @@ body {
 <section class="how-it-works" id="how-it-works">
   <div class="container">
     <div class="how-header reveal">
-      <div class="label-tag light">How It Works</div>
+      <div class="label-tag light">03 — How It Works</div>
       <h2 class="section-title light">Set Up in Minutes.<br>Save Hours Every Month.</h2>
       <p class="section-desc light" style="margin: 0 auto; text-align: center">No complex onboarding, no training required. If you can use Telegram, you can run LandlordHQ.</p>
     </div>
@@ -2423,8 +2240,8 @@ body {
           <div class="step-number">1</div>
           <div class="step-ring"></div>
         </div>
-        <div class="step-title">Set Up Your Properties</div>
-        <div class="step-desc">Add your properties and units, then link your Telegram account with a single verification code. No password needed — OTP login keeps it simple and secure from day one.</div>
+        <div class="step-title">Create Your Account</div>
+        <div class="step-desc">Sign up, add your properties and units. Link your Telegram account with a single verification code — no password ever needed. OTP login keeps it simple and secure.</div>
         <a href="client-onboard.html" style="display:inline-flex;align-items:center;gap:6px;margin-top:16px;font-size:13px;font-weight:600;color:var(--electric-light);text-decoration:none;opacity:0.85;transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'">
           Landlord setup guide <i class="fas fa-arrow-right" style="font-size:11px;"></i>
         </a>
@@ -2723,54 +2540,59 @@ body {
 </section>
 
 <!-- ══════════════════════════════════════
-     ACCESS REQUEST
+     TESTIMONIALS
 ══════════════════════════════════════ -->
-<section class="demo-section" id="get-access">
+<section class="testimonials" id="testimonials">
   <div class="container">
-    <div class="demo-inner reveal">
-      <div class="demo-copy">
-        <div class="label-tag gold">Get Access</div>
-        <h2 class="section-title light" style="margin-top:12px;">Start Managing<br>Smarter.</h2>
-        <p class="section-desc light">Fill in your details and we'll get you set up. We personally onboard every landlord to make sure you get the most out of LandlordHQ.</p>
-        <div class="demo-promise">
-          <div class="promise-item"><i class="fas fa-check-circle"></i> We'll reach out within 24 hours to get you started</div>
-          <div class="promise-item"><i class="fas fa-check-circle"></i> Personal onboarding — we walk you through everything</div>
-          <div class="promise-item"><i class="fas fa-check-circle"></i> No spam. Cancel anytime.</div>
+    <div class="testimonials-header reveal">
+      <div class="label-tag">06 — Reviews</div>
+      <h2 class="section-title">Landlords Love It.</h2>
+      <p class="section-desc" style="margin: 0 auto">Real feedback from real property owners across the Philippines.</p>
+    </div>
+
+    <div class="testimonials-grid">
+      <div class="testimonial-card reveal" style="transition-delay:0.05s">
+        <div class="stars">
+          <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+        </div>
+        <div class="testimonial-quote">"</div>
+        <p class="testimonial-text">Before LandlordHQ, I was chasing tenants every month via text. Now they send receipts on their own and I just click verify. Nakaka-within lang talaga.</p>
+        <div class="testimonial-author">
+          <div class="author-avatar" style="background:#2B7AFF">M</div>
+          <div>
+            <div class="author-name">Marco Villanueva</div>
+            <div class="author-role">18 units · Quezon City</div>
+          </div>
         </div>
       </div>
-      <div class="demo-form-wrap">
-        <form class="demo-form" id="accessForm" onsubmit="handleAccessRequest(event)">
-          <div class="form-group">
-            <label>Your Name</label>
-            <input type="text" name="name" placeholder="Juan dela Cruz" required>
+
+      <div class="testimonial-card reveal" style="transition-delay:0.15s">
+        <div class="stars">
+          <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+        </div>
+        <div class="testimonial-quote">"</div>
+        <p class="testimonial-text">The maintenance ticketing is a game changer. My tenants take photos, I forward to my fixer in one tap. No more getting screenshots on Viber and forgetting about them.</p>
+        <div class="testimonial-author">
+          <div class="author-avatar" style="background:#F5A623">R</div>
+          <div>
+            <div class="author-name">Rachel Domingo</div>
+            <div class="author-role">32 units · Cebu City</div>
           </div>
-          <div class="form-group">
-            <label>Email Address</label>
-            <input type="email" name="email" placeholder="juan@email.com" required>
+        </div>
+      </div>
+
+      <div class="testimonial-card reveal" style="transition-delay:0.25s">
+        <div class="stars">
+          <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+        </div>
+        <div class="testimonial-quote">"</div>
+        <p class="testimonial-text">I set up rent reminders once and forgot about them. Now my collection rate jumped from 78% to 96%. Literally made me more money just by automating the follow-ups.</p>
+        <div class="testimonial-author">
+          <div class="author-avatar" style="background:#22C55E">J</div>
+          <div>
+            <div class="author-name">Julius Bautista</div>
+            <div class="author-role">12 units · BGC, Taguig</div>
           </div>
-          <div class="form-group">
-            <label>How many units do you manage?</label>
-            <select name="units" required>
-              <option value="" disabled selected>Select range</option>
-              <option value="1-5">1 – 5 units</option>
-              <option value="6-15">6 – 15 units</option>
-              <option value="16-50">16 – 50 units</option>
-              <option value="50+">50+ units</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>What are you currently using? <span class="form-optional">(optional)</span></label>
-            <input type="text" name="current_tool" placeholder="e.g. Excel, Viber group, nothing yet…">
-          </div>
-          <button type="submit" class="btn btn-primary demo-submit">
-            Request Access
-            <i class="fas fa-arrow-right"></i>
-          </button>
-        </form>
-        <div class="demo-success" id="accessSuccess" style="display:none">
-          <div class="success-icon"><i class="fas fa-check"></i></div>
-          <div class="success-title">Request received!</div>
-          <div class="success-desc">We'll be in touch within 24 hours to get you set up. Check your inbox — and your spam folder just in case.</div>
         </div>
       </div>
     </div>
@@ -2785,32 +2607,32 @@ body {
     <div class="cta-inner reveal">
       <div class="cta-badge">
         <i class="fas fa-bolt" style="color:var(--gold);font-size:11px"></i>
-        <span>Built for Filipino Landlords</span>
+        <span>Free to Get Started</span>
       </div>
 
       <h2 class="cta-heading">
         Your Properties.<br>
-        <span class="accent">Finally Organized.</span>
+        <span class="accent">Automated.</span>
       </h2>
 
       <p class="cta-sub">
-        Stop managing on spreadsheets and group chats. LandlordHQ brings your rent collection, tenant communication, and property finances into one place — running on Telegram.
+        Stop managing on spreadsheets and group chats. Join 500+ Filipino landlords who've put their property management on autopilot.
       </p>
 
       <div class="cta-actions">
-        <a href="#get-access" class="btn btn-primary" style="font-size:16px;padding:16px 32px">
-          Get Access
+        <a href="signup.html" class="btn btn-primary" style="font-size:16px;padding:16px 32px">
+          Create Your Account
           <i class="fas fa-arrow-right"></i>
         </a>
-        <a href="#how-it-works" class="btn btn-ghost" style="font-size:16px;padding:16px 32px">
-          How It Works
+        <a href="login.html" class="btn btn-ghost" style="font-size:16px;padding:16px 32px">
+          Sign In
         </a>
       </div>
 
       <div class="cta-trust">
-        <div class="trust-item"><i class="fas fa-check-circle"></i> Personal onboarding included</div>
-        <div class="trust-item"><i class="fas fa-check-circle"></i> See the real product in action</div>
-        <div class="trust-item"><i class="fas fa-check-circle"></i> No commitment required</div>
+        <div class="trust-item"><i class="fas fa-check-circle"></i> No credit card required</div>
+        <div class="trust-item"><i class="fas fa-check-circle"></i> Set up in under 5 minutes</div>
+        <div class="trust-item"><i class="fas fa-check-circle"></i> Cancel anytime</div>
       </div>
     </div>
   </div>
@@ -2838,7 +2660,7 @@ body {
           </svg>
           <span class="footer-wordmark">Landlord<span>HQ</span></span>
         </div>
-        <p>Property management built for Filipino landlords. Rent collection, tenant communication, and finances — all running through Telegram.</p>
+        <p>The command center for Filipino landlords. Automate rent collection, manage tenants, and grow your portfolio — on autopilot.</p>
       </div>
 
       <div class="footer-col">
@@ -2846,16 +2668,24 @@ body {
         <ul class="footer-links">
           <li><a href="#features">Features</a></li>
           <li><a href="#how-it-works">How It Works</a></li>
+          <li><a href="#guides">Guides</a></li>
           <li><a href="#telegram">Telegram Bot</a></li>
-          <li><a href="#get-access">Get Access</a></li>
+          <li><a href="signup.html">Get Started</a></li>
         </ul>
       </div>
 
       <div class="footer-col">
-        <h4>Get Access</h4>
+        <h4>Account</h4>
         <ul class="footer-links">
-          <li><a href="#get-access">Get Access</a></li>
-          <li><a href="https://landlordhq.genolworks.online/login">Sign In</a></li>
+          <li><a href="login.html">Sign In</a></li>
+          <li><a href="signup.html">Create Account</a></li>
+          <li><a href="dashboard.html">Dashboard</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Guides</h4>
+        <ul class="footer-links">
           <li><a href="client-onboard.html">Landlord Guide</a></li>
           <li><a href="tenant-onboard.html">Tenant Guide</a></li>
         </ul>
@@ -2866,6 +2696,7 @@ body {
         <ul class="footer-links">
           <li><a href="#">About</a></li>
           <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
           <li><a href="#">Contact</a></li>
         </ul>
       </div>
@@ -2964,51 +2795,6 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
     }
   });
 });
-
-// ── Access request form submission
-// Paste your Google Apps Script Web App URL below after deploying
-const FORM_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyin23_8TUFEFYGMpkaDWlkMK322e4eKdVHN9tskgjWc02WBOSTJeL1yibVV_cKUJ-c/exec';
-
-async function handleAccessRequest(e) {
-  e.preventDefault();
-
-  const form    = document.getElementById('accessForm');
-  const btn     = form.querySelector('.demo-submit');
-  const success = document.getElementById('accessSuccess');
-
-  // Button loading state
-  const originalHTML = btn.innerHTML;
-  btn.disabled  = true;
-  btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Sending…';
-
-  // Build form payload
-  const params = new URLSearchParams({
-    name:         form.querySelector('[name="name"]').value.trim(),
-    email:        form.querySelector('[name="email"]').value.trim(),
-    units:        form.querySelector('[name="units"]').value,
-    current_tool: form.querySelector('[name="current_tool"]').value.trim()
-  });
-
-  try {
-    // no-cors: we can't read the response body, but the script executes fine on Google's end
-    await fetch(FORM_ENDPOINT, {
-      method: 'POST',
-      mode:   'no-cors',
-      body:   params
-    });
-  } catch (err) {
-    // Network errors are uncommon with Apps Script; still show success to user
-    console.warn('Access request fetch error (non-critical):', err);
-  }
-
-  // Show success state regardless — Apps Script is reliable
-  form.style.display    = 'none';
-  success.style.display = 'block';
-
-  // Reset button in case user navigates back
-  btn.disabled  = false;
-  btn.innerHTML = originalHTML;
-}
 </script>
 
 </body>

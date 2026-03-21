@@ -136,8 +136,8 @@ const processRentCheck = async (bot, tenant, adminSettings, today = new Date()) 
 
             const paymentId = uuidv4();
             await conn.query(
-                'INSERT INTO payments (id, unit, tenant_id, amount, method, status, timestamp, admin_id, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                [paymentId, tenant.unit, tenant.telegramId || 'system', leaseAmount, 'Prepaid Balance Auto-Deduct', 'verified', today, tenant.adminId,
+                'INSERT INTO payments (id, unit, tenant_name, tenant_id, amount, method, status, timestamp, admin_id, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                [paymentId, tenant.unit, tenant.name || '', tenant.telegramId || 'system', leaseAmount, 'Prepaid Balance Auto-Deduct', 'verified', today, tenant.adminId,
                  `Auto-deducted from Prepaid Balance. Remaining: ${newBalance.toLocaleString()}`]
             );
             await conn.commit();

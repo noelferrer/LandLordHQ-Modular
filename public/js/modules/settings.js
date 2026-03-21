@@ -24,8 +24,17 @@ async function saveSettings() {
     window.openConfirmModal('Save Settings', 'Are you sure you want to update the system settings?', 'info', async () => {
         try {
             const res = await fetch(`${API_URL}/settings`, { method: 'POST', credentials: 'include', headers: { ...csrfHeaders() }, body: JSON.stringify(settings) });
-            if (res.ok) window.openConfirmModal('Saved!', 'Core Settings Updated & Saved', 'success');
-        } catch (err) { console.error(err); }
+            if (res.ok) {
+                window.openConfirmModal('Saved!', 'Core Settings Updated & Saved', 'success');
+                window.refreshDashboard();
+            } else {
+                const err = await res.json();
+                window.openConfirmModal('Error', err.error || 'Failed to save settings. Please check your inputs.', 'danger');
+            }
+        } catch (err) {
+            console.error(err);
+            window.openConfirmModal('Error', 'A network error occurred. Please try again.', 'danger');
+        }
     });
 }
 

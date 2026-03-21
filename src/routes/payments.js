@@ -32,12 +32,19 @@ module.exports = ({ db, bot, helpers, middleware }) => {
         if (req.body.notes && !validateString(req.body.notes, MAX_STRING_LENGTH)) {
             return res.status(400).json({ success: false, error: 'Notes too long (max 500 chars).' });
         }
-        const { unit, amount, method, notes, propertyId } = req.body;
+        const { unit, amount, method, notes, propertyId, tenantName } = req.body;
         if (unit && !validateString(unit, 50)) {
             return res.status(400).json({ success: false, error: 'Unit name too long (max 50 chars).' });
         }
         if (method && !validateString(method, 100)) {
             return res.status(400).json({ success: false, error: 'Method too long (max 100 chars).' });
+        }
+
+        // Look up tenant name from DB if not provided
+        let resolvedTenantName = (tenantName && typeof tenantName === 'string') ? tenantName.trim() : '';
+        if (!resolvedTenantName && unit) {
+            const [tRows] = await pool.query('SELECT name FROM tenants WHERE unit = ? AND admin_id = ?', [unit, req.admin.id]);
+            if (tRows.length > 0) resolvedTenantName = tRows[0].name || '';
         }
 
         const payment = {
@@ -47,6 +54,7 @@ module.exports = ({ db, bot, helpers, middleware }) => {
             status: 'verified',
             timestamp: new Date(),
             unit: unit || '',
+            tenantName: resolvedTenantName,
             amount: amount ? parseFloat(amount) : 0,
             method: method || '',
             notes: notes || '',
@@ -54,10 +62,10 @@ module.exports = ({ db, bot, helpers, middleware }) => {
         };
 
         await pool.query(
-            `INSERT INTO payments (id, admin_id, type, status, timestamp, unit, amount, method, notes, property_id)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO payments (id, admin_id, type, status, timestamp, unit, tenant_name, amount, method, notes, property_id)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [payment.id, payment.adminId, payment.type, payment.status, payment.timestamp,
-             payment.unit, payment.amount, payment.method, payment.notes, payment.propertyId]
+             payment.unit, payment.tenantName, payment.amount, payment.method, payment.notes, payment.propertyId]
         );
 
         auditLog(req.admin.id, 'create', 'payment', { id: payment.id, unit: payment.unit, amount: payment.amount });

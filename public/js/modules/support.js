@@ -133,8 +133,15 @@ async function handleTicketCheck(checkbox, id, field) {
         if (checkbox.checked) {
             fetch(`${API_URL}/tickets/${id}/forward`, { method: 'POST', credentials: 'include', headers: csrfHeaders() })
                 .then(res => res.json())
-                .then(data => { if (!data.success) console.error('Fixer notification failed:', data.error); })
-                .catch(e => console.error('Fixer notification failed:', e));
+                .then(data => {
+                    if (!data.success) {
+                        window.openConfirmModal('Fixer Not Notified', data.error || 'Ticket was marked as reported, but the fixer could not be notified via Telegram. Please check the Fixer Chat ID in Settings.', 'danger');
+                    }
+                })
+                .catch(e => {
+                    console.error('Fixer notification failed:', e);
+                    window.openConfirmModal('Fixer Not Notified', 'Ticket was marked as reported, but could not reach the server to notify the fixer.', 'danger');
+                });
         }
     }
 }
@@ -145,15 +152,19 @@ async function updateTicketStatus(id, field, value) {
         updates[field] = value;
         const res = await fetch(`${API_URL}/tickets/${id}`, { method: 'PUT', credentials: 'include', headers: { ...csrfHeaders() }, body: JSON.stringify(updates) });
         if (res.ok) window.refreshDashboard();
-        else console.error('Failed to update ticket status');
+        else { const err = await res.json(); window.openConfirmModal('Error', err.error || 'Failed to update ticket.', 'danger'); }
     } catch (err) { console.error('Error updating ticket:', err); }
 }
 
 async function verifyPayment(unit, paymentId) {
     const tenant = (window.tenantData || []).find(t => String(t.unit) === String(unit));
     const amountInput = document.getElementById('verify-amount');
-    if (tenant && tenant.leaseAmount) amountInput.value = tenant.leaseAmount;
-    else amountInput.value = '';
+    if (tenant && tenant.leaseAmount) {
+        amountInput.value = tenant.leaseAmount;
+    } else {
+        amountInput.value = '';
+        if (!tenant) amountInput.placeholder = 'Tenant not found — enter amount manually';
+    }
 
     document.getElementById('verify-payment-id').value = paymentId;
     document.getElementById('verify-payment-unit').value = unit;
